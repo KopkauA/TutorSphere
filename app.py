@@ -1,8 +1,22 @@
 # to run, use python app.py
 
+import os
 from flask import Flask, render_template, request, redirect
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+db = SQLAlchemy(app)
+
+# Test the database connection
+with app.app_context():
+    db.session.execute(text('SELECT 1'))
+    print('DB Connection Successful')
 
 
 # page routes
