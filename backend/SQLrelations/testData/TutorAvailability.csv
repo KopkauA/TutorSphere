@@ -1,5 +1,0 @@
-availability_id,tutor_email,available_time,tutor_status
-101,tutor1@example.com,2026-04-05 10:00:00,available
-102,tutor1@example.com,2026-04-05 14:00:00,available
-103,tutor2@example.com,2026-04-06 09:00:00,available
-104,tutor2@example.com,2026-04-06 13:00:00,booked

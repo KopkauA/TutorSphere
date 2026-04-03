@@ -13,27 +13,27 @@ Purpose: gives tutor the role of tutor, allows them to choose a schedule
 
   <h2>Step 2: Add Account Details</h2>
 
-  <form>
+  <form method="POST" action="{{ url_for('signup_tutor') }}">
     <label>First Name:</label><br>
-    <input type="text"><br><br>
+    <input type="text" name="first_name" required><br><br>
 
     <label>Last Name:</label><br>
-    <input type="text"><br><br>
+    <input type="text" name="last_name" required><br><br>
 
     <label>Email:</label><br>
-    <input type="email"><br><br>
+    <input type="email" name="email" required><br><br>
 
     <label>Password:</label><br>
-    <input type="password"><br><br>
+    <input type="password" name="password" required><br><br>
 
     <label>Subjects You Can Teach:</label><br>
-    <input type="text" placeholder="Math, Physics"><br><br>
+    <input type="text" name="subjects" placeholder="e.g., MAC2311, PHY2048"><br><br>
 
-    <button type="button">Create Account</button>
+    <button type="submit">Create Account</button>
   </form>
 
   <br>
-  <a href="/login">Back to Login</a>
+  <a href="{{ url_for('login') }}">Back to Login</a>
 
 </body>
 </html>

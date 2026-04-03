@@ -1,3 +1,8 @@
+# Connecting MySQL database to Flask application using SQLAlchemy ORM. The database connection is established using the DATABASE_URL environment variable, and a test query is executed to confirm the connection.
+'''
+Set up was aided with the following resources:
+Coding With Moiz Khan - Connecting MySQL with Flask: https://www.youtube.com/watch?v=kCNfWwHyTmY
+'''
 
 import os
 

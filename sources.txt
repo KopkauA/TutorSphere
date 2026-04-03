@@ -1,0 +1,3 @@
+[1]Coding With Moiz Khan, “How to Connect MySQL Database with Flask | Step-by-Step Guide for Beginners,” YouTube, Aug. 17, 2024. https://www.youtube.com/watch?v=kCNfWwHyTmY (accessed Apr. 03, 2026).
+‌[2]“MySQL :: MySQL 8.4 Reference Manual :: 15.1.12 CREATE DATABASE Statement,” Mysql.com, 2025. https://dev.mysql.com/doc/refman/8.4/en/create-database.html
+‌
