@@ -1,30 +1,151 @@
-<!--
-
-Description: if someone clicks that they do not have an account, they are brought to this page
-Purpose: User selects if they are a student or a tutor, are are brought to different sign-up pages
-
--->
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Sign Up - TutorSphere</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      height: 100vh;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+    }
+
+    .options {
+      display: flex;
+      gap: 20px;
+    }
+
+    .card {
+      flex: 1;
+      padding: 25px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: black;
+      user-select: none;
+    }
+
+    .card:hover {
+      border-color: #4a90e2;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+    }
+
+    .card.selected {
+      border-color: #4a90e2;
+      background: #eaf3ff;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .next-btn {
+      margin-top: 30px;
+      width: 100%;
+      padding: 12px 16px;
+
+      border: none;
+      border-radius: 8px;
+
+      background: #4a90e2;
+      color: white;
+
+      font-size: 16px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      opacity: 0.5;
+      pointer-events: none;
+
+      transition: all 0.2s ease;
+    }
+    .next-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .next-btn:hover {
+      background: #357bd8;
+    }
+  </style>
 </head>
+
 <body>
 
-  <h2>Are you a...</h2>
+<div class="container">
+  <h2>Step 1: Are you a Tutor or Student?</h2>
 
-  <a href="/signup/student">
-    <button>Student</button>
-  </a>
+  <div class="options">
+    <div class="card" onclick="selectRole('student')">
+      <h3>Student</h3>
+      <p>Find tutors and get help with your courses</p>
+    </div>
 
-  <a href="/signup/tutor">
-    <button>Tutor</button>
-  </a>
+    <div class="card" onclick="selectRole('tutor')">
+      <h3>Tutor</h3>
+      <p>Teach and guide students</p>
+    </div>
+  </div>
 
-  <br><br>
+  <button id="nextBtn" class="next-btn" onclick="goNext()">Next</button>
+</div>
 
-  <a href="/login">Back to Login</a>
+<script>
+  let selectedRole = null;
+
+  function selectRole(role) {
+    selectedRole = role;
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.classList.remove('selected');
+    });
+
+    event.currentTarget.classList.add('selected');
+
+    document.getElementById('nextBtn').classList.add('active');
+  }
+
+  function goNext() {
+    if (!selectedRole) return;
+
+    if (selectedRole === 'student') {
+      window.location.href = "/signup/student";
+    } else {
+      window.location.href = "/signup/tutor";
+    }
+  }
+</script>
 
 </body>
 </html>

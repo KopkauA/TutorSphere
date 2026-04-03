@@ -9,25 +9,86 @@ Purpose: brings user to the main page
 <html>
 <head>
   <title>Login - TutorSphere</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+
+    }
+    .login-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 400px;
+      text-align: center;
+    }
+
+    h2{margin-bottom: 20px;}
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    input{
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+    button{
+      width: 100%;
+      padding: 10px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #357abd;
+    }
+
+    a{
+      display: block;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #4a90e2;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+  <div class="login-container">
+    <h2>Login</h2>
 
-  <h2>Login</h2>
+    <form>
+      <label>Email:</label>
+      <input type="email" placeholder= "Enter your email">
 
-  <form>
-    <label>Email:</label><br>
-    <input type="email"><br><br>
+      <label>Password:</label>
+      <input type="password" placeholder= "Enter your password">
 
-    <label>Password:</label><br>
-    <input type="password"><br><br>
+      <button type="button">Login</button>
+    </form>
 
-    <button type="button">Login</button>
-  </form>
-
-  <br>
-
-  <a href="/signup">Don't have an account? Sign up here</a>
-  </a>
-
+    <a href="/signup">Don't have an account? Sign up here </a>
+  </div>
 </body>
 </html>
