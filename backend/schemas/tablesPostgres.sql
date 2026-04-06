@@ -16,16 +16,16 @@ CREATE TABLE Users (
   password      VARCHAR(100) NOT NULL,
   role          VARCHAR(10) NOT NULL,
   CHECK         (role IN ('tutor', 'student'))
-);
+);w
 
 CREATE TABLE Subjects (
-  subject_id         INTEGER PRIMARY KEY,
+  subject_id         VARCHAR(20) PRIMARY KEY,
   subject_name       VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE Teaches (
   tutor_email        VARCHAR(100) NOT NULL REFERENCES Users(email),
-  subject_id         INTEGER NOT NULL REFERENCES Subjects(subject_id),
+  subject_id         VARCHAR(20) NOT NULL REFERENCES Subjects(subject_id),
   PRIMARY KEY        (tutor_email, subject_id)
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE TutorSession
   session_id        INTEGER PRIMARY KEY,
   tutor_email       VARCHAR(100) NOT NULL REFERENCES Users(email),
   student_email     VARCHAR(100) NOT NULL REFERENCES Users(email),
-  subject_id        INTEGER NOT NULL REFERENCES Subjects(subject_id),
+  subject_id        VARCHAR(20) NOT NULL REFERENCES Subjects(subject_id),
   availability_id   INTEGER NOT NULL UNIQUE  REFERENCES TutorAvailability(availability_id),
   session_location  VARCHAR(100) NOT NULL,
   session_status    session_status_enum NOT NULL

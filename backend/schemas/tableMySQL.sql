@@ -15,13 +15,13 @@ CREATE TABLE Users (
 ) ENGINE=InnoDB;
 
 CREATE TABLE Subjects (
-  subject_id INT NOT NULL PRIMARY KEY,
+  subject_id VARCHAR(20) NOT NULL PRIMARY KEY,
   subject_name VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 
 CREATE TABLE Teaches (
   tutor_email VARCHAR(100) NOT NULL,
-  subject_id INT NOT NULL,
+  subject_id VARCHAR(20) NOT NULL,
   PRIMARY KEY (tutor_email, subject_id),
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
   FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id)
@@ -39,7 +39,7 @@ CREATE TABLE TutorSession (
   session_id INT NOT NULL PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
   student_email VARCHAR(100) NOT NULL,
-  subject_id INT NOT NULL,
+  subject_id VARCHAR(20) NOT NULL,
   availability_id INT NOT NULL UNIQUE,
   session_location VARCHAR(100) NOT NULL,
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
