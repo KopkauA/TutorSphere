@@ -5,13 +5,14 @@ from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from dotenv import load_dotenv
+from backend.models import db
 
 load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-db = SQLAlchemy(app)
+db.init_app(app)
 
 # Test the database connection
 with app.app_context():
@@ -26,7 +27,7 @@ def home():
 
 
 @app.route("/login")
-def login_page():
+def login():
     return render_template("login.html")
 
 
@@ -43,7 +44,6 @@ def signup_student():
 @app.route("/signup/tutor")
 def signup_tutor():
     return render_template("signup_tutor.html")
-
 
 # run
 if __name__ == "__main__":

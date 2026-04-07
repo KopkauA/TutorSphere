@@ -17,27 +17,21 @@ Purpose: gives student the role of student
   <form>
   <form method="POST" action="{{ url_for('signup_student') }}">
     <label>First Name:</label><br>
-    <input type="text"><br><br>
     <input type="text" name="first_name" required><br><br>
 
     <label>Last Name:</label><br>
-    <input type="text"><br><br>
     <input type="text" name="last_name" required><br><br>
 
     <label>Email:</label><br>
-    <input type="email"><br><br>
     <input type="email" name="email" required><br><br>
 
     <label>Password:</label><br>
-    <input type="password"><br><br>
     <input type="password" name="password" required><br><br>
 
-    <button type="button">Create Account</button>
     <button type="submit">Create Account</button>
   </form>
 
   <br>
-  <a href="/login">Back to Login</a>
   <a href="{{ url_for('login') }}">Back to Login</a>
 
 </body>
