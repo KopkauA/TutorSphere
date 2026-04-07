@@ -14,13 +14,12 @@ Purpose: gives student the role of student
 
   <h2>Step 2: Add Account Details</h2>
 
-  <form>
   <form method="POST" action="{{ url_for('signup_student') }}">
     <label>First Name:</label><br>
-    <input type="text" name="first_name" required><br><br>
+    <input type="text" name="fname" required><br><br>
 
     <label>Last Name:</label><br>
-    <input type="text" name="last_name" required><br><br>
+    <input type="text" name="lname" required><br><br>
 
     <label>Email:</label><br>
     <input type="email" name="email" required><br><br>
