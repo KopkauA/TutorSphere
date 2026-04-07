@@ -23,14 +23,26 @@ with app.app_context():
 
 # page routes
 @app.route("/")
-def home():
+def login_page():
     return render_template("login.html")
 
 
-@app.route("/login")
-def login():
-    return render_template("login.html")
+@app.route("/login", methods=["POST"])
+def login_post():
+    email = request.form['email']
+    password = request.form['password']
 
+    user = User.query.filter_by(email=email, password=password).first()
+
+    if user:
+        return redirect(url_for('dashboard'))
+    
+    return render_template("login.html", error="Invalid email or password")
+
+
+@app.route("/dashboard")
+def dashboard():
+    return "<h1>You are logged in.</h1>"
 
 @app.route("/signup")
 def signup_choice():
