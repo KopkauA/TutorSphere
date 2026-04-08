@@ -131,6 +131,37 @@ def book_session(availability_id):
     db.session.commit()
     return redirect(url_for("search_sessions"))
 
+# for looking at personal active/completed/cancelled sessions
+@app.route("/my-sessions")
+def my_sessions():
+    status = request.args.get("status")  # active/completed/cancelled
+
+    query = """
+    SELECT ts.session_id,
+           ts.session_status,
+           ts.session_location,
+           ts.course_id,
+           ta.available_time,
+           u.fname,
+           u.lname
+    FROM TutorSession ts
+    JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
+    JOIN Users u ON ts.tutor_email = u.email
+    WHERE ts.student_email = :email
+    """
+
+    params = {"email": STUDENT_EMAIL}
+
+    if status:
+        query += " AND ts.session_status = :status"
+        params["status"] = status
+
+    query += " ORDER BY ta.available_time DESC"
+
+    sessions = db.session.execute(text(query), params).fetchall()
+
+    return render_template("my_sessions.html", sessions=sessions)
+
 # run
 if __name__ == "__main__":
     app.run(debug=True)
