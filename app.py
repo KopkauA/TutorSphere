@@ -25,7 +25,7 @@ with app.app_context():
 
 # page routes
 @app.route("/")
-def login_page():
+def login():
     return render_template("login.html")
 
 
