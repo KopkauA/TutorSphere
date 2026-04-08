@@ -74,6 +74,9 @@ def signup_student():
 
     return render_template('signup_student.html')
 
+STUDENT_EMAIL = "student1@example.com"
+
+
 @app.route("/signup/tutor")
 def signup_tutor():
     return render_template("signup_tutor.html")
@@ -88,45 +91,28 @@ def search_sessions():
         tutor = request.form.get("tutor")
         time = request.form.get("time")
 
-        if not subject_id or not subject_id.strip():
-            return render_template(
-                "session_search.html",
-                sessions = [],
-                my_sessions = my_sessions,
-                error = "Course ID required"
-            )
-
         query = """
-        SELECT
-            TA.availability_id,
-            TA.available_time,
-            U.fname,
-            U.lname,
-            S.subject_id,
-            S.subject_name
-        FROM
-            TutorAvailability TA,
-            Users U,
-            Teaches T,
-            Subjects S
-        WHERE
-            TA.tutor_email = U.email
-            AND U.email = T.tutor_email
-            AND T.subject_id = S.subject_id
-            AND TA.tutor_status = 'available'
+        SELECT ta.availability_id, ta.available_time,
+               u.fname, u.lname,
+               s.subject_id, s.subject_name
+        FROM TutorAvailability ta
+        JOIN Users u ON ta.tutor_email = u.email
+        JOIN Teaches t ON u.email = t.tutor_email
+        JOIN Subjects s ON t.subject_id = s.subject_id
+        WHERE ta.tutor_status = 'available'
         """
         params = {}
 
         if subject_id:
-            query += " AND S.subject_id = :subject_id"
+            query += " AND s.subject_id = :subject_id"
             params["subject_id"] = subject_id
 
         if tutor:
-            query += " AND CONCAT(U.fname,' ', U.lname) LIKE :tutor"
+            query += " AND (u.fname LIKE :tutor OR u.lname LIKE :tutor)"
             params["tutor"] = f"%{tutor}%"
 
         if time:
-            query += " AND DATE(TA.available_time) = :time"
+            query += " AND DATE(ta.available_time) = :time"
             params["time"] = time
 
         sessions = db.session.execute(text(query), params).fetchall()
