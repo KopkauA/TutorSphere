@@ -10,6 +10,9 @@ from backend.models import db, User
 
 load_dotenv()  # Load environment variables from .env file
 
+#FOR TESTING PURPOSES
+STUDENT_EMAIL = "student1@example.com"
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -19,7 +22,6 @@ db.init_app(app)
 with app.app_context():
     db.session.execute(text('SELECT 1'))
     print('DB Connection Successful')
-
 
 # page routes
 @app.route("/")
@@ -72,10 +74,76 @@ def signup_student():
 
     return render_template('signup_student.html')
 
-
 @app.route("/signup/tutor")
 def signup_tutor():
     return render_template("signup_tutor.html")
+
+@app.route("/search", methods=["GET", "POST"])
+def search_sessions():
+    sessions = []  # empty default
+    my_sessions = []  # optional, for sidebar
+
+    if request.method == "POST":
+        subject_id = request.form.get("subject")
+        tutor = request.form.get("tutor")
+        time = request.form.get("time")
+
+        if not subject_id or not subject_id.strip():
+            return render_template(
+                "session_search.html",
+                sessions = [],
+                my_sessions = my_sessions,
+                error = "Course ID required"
+            )
+
+        query = """
+        SELECT
+            TA.availability_id,
+            TA.available_time,
+            U.fname,
+            U.lname,
+            S.subject_id,
+            S.subject_name
+        FROM
+            TutorAvailability TA,
+            Users U,
+            Teaches T,
+            Subjects S
+        WHERE
+            TA.tutor_email = U.email
+            AND U.email = T.tutor_email
+            AND T.subject_id = S.subject_id
+            AND TA.tutor_status = 'available'
+        """
+        params = {}
+
+        if subject_id:
+            query += " AND S.subject_id = :subject_id"
+            params["subject_id"] = subject_id
+
+        if tutor:
+            query += " AND CONCAT(U.fname,' ', U.lname) LIKE :tutor"
+            params["tutor"] = f"%{tutor}%"
+
+        if time:
+            query += " AND DATE(TA.available_time) = :time"
+            params["time"] = time
+
+        sessions = db.session.execute(text(query), params).fetchall()
+
+    return render_template("session_search.html", sessions=sessions, my_sessions=my_sessions)
+
+@app.route("/book/<int:availability_id>", methods=["POST"])
+def book_session(availability_id):
+    db.session.execute(
+        text("" \
+        "UPDATE TutorAvailability " \
+        "SET tutor_status = 'booked' " \
+        "WHERE availability_id = :id"),
+        {"id": availability_id}
+    )
+    db.session.commit()
+    return redirect(url_for("search_sessions"))
 
 # run
 if __name__ == "__main__":

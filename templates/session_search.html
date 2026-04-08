@@ -1,0 +1,104 @@
+<!--
+
+Description: Session search page
+Purpose:
+    - Search for available tutoring sessions based on course, tutor, and date
+    - Display search results
+    - Users can see their current booked sessions to not overlap
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule a Session</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class = "body">
+<div class="content-wrapper">
+    <h1 class="page-title">Schedule a Session</h1>
+
+    <div class="main-layout">
+        <!-- Main Content -->
+
+        <div class="main-content">
+            <!-- Search Card -->
+            <div class="card">
+
+                <form method="POST" action="/search">
+
+                    <div class="form-group">
+                        <label class="form-label" for="subject">Course ID</label>
+                        <input type="text" id="subject" name="subject" class="form-input" value="{{ request.form.subject or '' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="tutor">Tutor</label>
+                        <input type="text" id="tutor" name="tutor" class="form-input" value="{{ request.form.tutor or '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="time">Date</label>
+                        <input type="date" id="time" name="time" class="form-input" value="{{ request.form.time or '' }}">
+                    </div>
+                    
+                    <button type="submit" class="button">Search</button>
+                </form>
+            </div>
+
+            <!-- Available Sessions Card -->
+            <div class="card">
+                <h2 class="section-title">Available Sessions</h2>
+                
+                {% if sessions and sessions|length > 0 %}
+                    <div class="sessions-table-wrapper">
+                        <table class="sessions-table">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Tutor</th>
+                                    <th>Date and Time</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in sessions %}
+                                <tr>
+                                    <td>
+                                        <div class="course-code">{{ s.subject_id }}</div>
+                                        <div class="course-name">{{ s.subject_name }}</div>
+                                    </td>
+                                    <td class="tutor-name">{{ s.fname }} {{ s.lname }}</td>
+                                    <td class="time-slot">{{ s.available_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('book_session', availability_id=s.availability_id) }}">
+                                            <button type="submit" class="book-btn">Book Session</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <p class="empty-state-text">No sessions found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">My Bookings</h3>
+                <p class="sidebar-text">
+                    Select a session from the list and click "Book Session" to reserve your spot.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

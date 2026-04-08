@@ -24,13 +24,14 @@ CREATE TABLE Teaches (
   subject_id VARCHAR(20) NOT NULL,
   PRIMARY KEY (tutor_email, subject_id),
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id)
+  FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE TutorAvailability (
   availability_id INT NOT NULL PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
-  available_time DATETIME NOT NULL UNIQUE,
+  available_time DATETIME NOT NULL,
+  available_days ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') NOT NULL,
   tutor_status ENUM('available', 'booked') NOT NULL,
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
 ) ENGINE=InnoDB;
@@ -45,6 +46,6 @@ CREATE TABLE TutorSession (
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
   FOREIGN KEY (student_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id),
+  FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
 ) ENGINE=InnoDB;
