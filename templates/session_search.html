@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule a Session</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="page-container">
+    <h1>Schedule a Session</h1>
+
+    <!-- Search Form -->
+    <div class="card">
+        <h2>Search for a Session</h2>
+        <form method="POST" action="/search">
+            <div class="form-group">
+                <label for="subject">Course ID</label>
+                <input type="text" id="subject" name="subject" placeholder="e.g. MAC2311"
+                       value="{{ request.form.subject or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="tutor">Tutor</label>
+                <input type="text" id="tutor" name="tutor" placeholder="Tutor name"
+                       value="{{ request.form.tutor or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="time">Date</label>
+                <input type="date" id="time" name="time" value="{{ request.form.time or '' }}">
+            </div>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Search Results -->
+    <div class="card">
+        <h2>Available Sessions</h2>
+        {% if sessions and sessions|length > 0 %}
+            {% for s in sessions %}
+                <div class="session-row">
+                    <strong>{{ s.subject_id }} - {{ s.subject_name }}</strong><br>
+                    Tutor: {{ s.fname }} {{ s.lname }}<br>
+                    Time: {{ s.available_time.strftime('%Y-%m-%d %H:%M') }}<br>
+
+                    <!-- Booking button -->
+                    <form method="POST" action="{{ url_for('book_session', availability_id=s.availability_id) }}">
+                        <button type="submit">Book Session</button>
+                    </form>
+                </div>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>No sessions found.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
