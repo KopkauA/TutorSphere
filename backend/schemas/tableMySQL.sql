@@ -14,23 +14,25 @@ CREATE TABLE Users (
   role ENUM('tutor', 'student') NOT NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE Subjects (
-  subject_id VARCHAR(20) NOT NULL PRIMARY KEY,
-  subject_name VARCHAR(100) NOT NULL UNIQUE
+CREATE TABLE Courses (
+  course_id VARCHAR(20) NOT NULL PRIMARY KEY,
+  course_name VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 
 CREATE TABLE Teaches (
   tutor_email VARCHAR(100) NOT NULL,
-  subject_id VARCHAR(20) NOT NULL,
-  PRIMARY KEY (tutor_email, subject_id),
+  course_id VARCHAR(20) NOT NULL,
+  PRIMARY KEY (tutor_email, course_id),
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id)
+  FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE TutorAvailability (
   availability_id INT NOT NULL PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
-  available_time DATETIME NOT NULL UNIQUE,
+  available_day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME NOT NULL,
   tutor_status ENUM('available', 'booked') NOT NULL,
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
 ) ENGINE=InnoDB;
@@ -39,12 +41,12 @@ CREATE TABLE TutorSession (
   session_id INT NOT NULL PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
   student_email VARCHAR(100) NOT NULL,
-  subject_id VARCHAR(20) NOT NULL,
+  course_id VARCHAR(20) NOT NULL,
   availability_id INT NOT NULL UNIQUE,
   session_location VARCHAR(100) NOT NULL,
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
   FOREIGN KEY (student_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id),
+  FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
 ) ENGINE=InnoDB;

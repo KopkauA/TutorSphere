@@ -20,7 +20,6 @@ with app.app_context():
     db.session.execute(text('SELECT 1'))
     print('DB Connection Successful')
 
-
 # page routes
 @app.route("/")
 def login_page():
@@ -72,10 +71,62 @@ def signup_student():
 
     return render_template('signup_student.html')
 
+STUDENT_EMAIL = "student1@example.com"
+
 
 @app.route("/signup/tutor")
 def signup_tutor():
     return render_template("signup_tutor.html")
+
+@app.route("/search", methods=["GET", "POST"])
+def search_sessions():
+    sessions = []  # empty default
+    my_sessions = []  # optional, for sidebar
+
+    if request.method == "POST":
+        subject_id = request.form.get("subject")
+        tutor = request.form.get("tutor")
+        time = request.form.get("time")
+
+        query = """
+        SELECT ta.availability_id, ta.available_time,
+               u.fname, u.lname,
+               s.subject_id, s.subject_name
+        FROM TutorAvailability ta
+        JOIN Users u ON ta.tutor_email = u.email
+        JOIN Teaches t ON u.email = t.tutor_email
+        JOIN Subjects s ON t.subject_id = s.subject_id
+        WHERE ta.tutor_status = 'available'
+        """
+        params = {}
+
+        if subject_id:
+            query += " AND s.subject_id = :subject_id"
+            params["subject_id"] = subject_id
+
+        if tutor:
+            query += " AND (u.fname LIKE :tutor OR u.lname LIKE :tutor)"
+            params["tutor"] = f"%{tutor}%"
+
+        if time:
+            query += " AND DATE(ta.available_time) = :time"
+            params["time"] = time
+
+        sessions = db.session.execute(text(query), params).fetchall()
+
+    return render_template("session_search.html", sessions=sessions, my_sessions=my_sessions)
+
+@app.route("/book/<int:availability_id>", methods=["POST"])
+def book_session(availability_id):
+    db.session.execute(
+        text("" \
+        "UPDATE TutorAvailability " \
+        "SET tutor_status = 'booked' " \
+        "WHERE availability_id = :id"),
+        {"id": availability_id}
+    )
+    db.session.commit()
+    return redirect(url_for("search_sessions"))
 
 # run
 if __name__ == "__main__":

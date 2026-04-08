@@ -1,0 +1,232 @@
+:root {
+  --primary: #4a90e2;
+  --primary-dark: #357abd;
+  --bg: #f4f6f8;
+  --text: #333;
+  --muted: #777;
+  --border: #ddd;
+  --shadow: 0 10px 25px rgba(0,0,0,0.08);
+  --radius: 12px;
+}
+
+/* Layout */
+* {
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.main-layout {
+  display: flex;
+  gap: 32px;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Cards */
+.card, .sidebar-card {
+  background-color: white;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+/* Course Info Section */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background-color: white;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.form-input::placeholder {
+  color: var(--muted);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
+}
+
+/* Buttons */
+.button, .session-button, .card button {
+  padding: 8px 32px;
+  background-color: white;
+  border: 2px solid var(--border);
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  transition: background-color 0.2s;
+}
+
+.button:hover, .session-button:hover, .card button:hover {
+  background-color: var(--bg);
+}
+
+/* Sessions Section */
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.session-info {
+  display: flex;
+  gap: 48px;
+}
+
+.session-divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 320px;
+}
+
+.sidebar-card {
+  position: sticky;
+  top: 48px;
+}
+
+.sidebar-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.empty-state {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  height: 256px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-text {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sessions-table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+        
+.sessions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+        
+.sessions-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+    background-color: #fafafa;
+}
+        
+.sessions-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+        
+.sessions-table tr:last-child td {
+    border-bottom: none;
+}
+        
+.course-code {
+    font-weight: 600;
+    color: var(--primary);
+}
+        
+.course-name {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
+}
+        
+.tutor-name {
+    font-weight: 500;
+}
+        
+.time-slot {
+    color: var(--text);
+}
+        
+.book-btn { 
+    padding: 6px 20px; 
+    background-color: white; 
+    border: 2px solid var(--border); 
+    border-radius: 9999px; 
+    cursor: pointer; font-size: 13px; 
+    color: var(--text); 
+    transition: background-color 0.2s; }
+        
+.book-btn:hover {
+    background-color: var(--bg);
+}
+        
+.session-list {
+    display: block;
+}
+        
+.session-divider {
+    display: none;
+}
