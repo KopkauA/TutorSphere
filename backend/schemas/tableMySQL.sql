@@ -3,7 +3,7 @@
 DROP TABLE IF EXISTS TutorSession;
 DROP TABLE IF EXISTS TutorAvailability;
 DROP TABLE IF EXISTS Teaches;
-DROP TABLE IF EXISTS Subjects;
+DROP TABLE IF EXISTS Courses;
 DROP TABLE IF EXISTS Users;
 
 CREATE TABLE Users (
@@ -24,7 +24,7 @@ CREATE TABLE Teaches (
   course_id VARCHAR(20) NOT NULL,
   PRIMARY KEY (tutor_email, course_id),
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id)
+  FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE TutorAvailability (
@@ -45,6 +45,6 @@ CREATE TABLE TutorSession (
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
   FOREIGN KEY (tutor_email) REFERENCES Users(email),
   FOREIGN KEY (student_email) REFERENCES Users(email),
-  FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id),
+  FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
 ) ENGINE=InnoDB;

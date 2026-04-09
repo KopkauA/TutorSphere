@@ -61,7 +61,7 @@ def signup_student():
             "fname": fname,
             "lname": lname,
             "password": password,
-            "role": "student"
+            "role": role
         }
 
         db.session.execute(text(query), params)
@@ -78,13 +78,13 @@ def signup_student():
 def tutor_setup(email):
     if request.method == "POST":
 
-        subject_ids = request.form["course_ids"].split(",")
+        course_ids = request.form["course_ids"].split(",")
         available_time = request.form["available_time"]
 
         # insert multiple subjects
-        for sid in subject_ids:
-            sid = sid.strip()
-            if sid == "":
+        for cid in course_ids:
+            cid = cid.strip()
+            if cid == "":
                 continue
 
             db.session.execute(text("""
@@ -92,7 +92,7 @@ def tutor_setup(email):
                 VALUES (:email, :course_id)
             """), {
                 "email": email,
-                "course_id": sid
+                "course_id": cid
             })
 
         # insert availability
@@ -112,7 +112,7 @@ def tutor_setup(email):
 
 # autocomplete course bar 
 @app.route("/api/courses")
-def get_subjects():
+def get_courses():
     q = request.args.get("q", "")
 
     query = """
@@ -149,14 +149,14 @@ def search_sessions():
     my_sessions = []  # optional, for sidebar
 
     if request.method == "POST":
-        subject_id = request.form.get("course")
+        course_id = request.form.get("course")
         tutor = request.form.get("tutor")
         time = request.form.get("time")
 
         query = """
         SELECT ta.availability_id, ta.available_time,
                u.fname, u.lname,
-               c.course_id, s.subject_name
+               c.course_id, c.course_name
         FROM TutorAvailability ta
         JOIN Users u ON ta.tutor_email = u.email
         JOIN Teaches t ON u.email = t.tutor_email
@@ -165,9 +165,9 @@ def search_sessions():
         """
         params = {}
 
-        if subject_id:
+        if course_id:
             query += " AND c.course_id = :course_id"
-            params["course_id"] = subject_id
+            params["course_id"] = course_id
 
         if tutor:
             query += " AND (u.fname LIKE :tutor OR u.lname LIKE :tutor)"
@@ -192,7 +192,7 @@ def book_session(availability_id):
         {"id": availability_id}
     )
     db.session.commit()
-    return redirect(url_for("search_courses"))
+    return redirect(url_for("search_sessions"))
 
 # for looking at personal active/completed/cancelled sessions
 @app.route("/my-sessions")
