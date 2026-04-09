@@ -36,40 +36,40 @@ def import_users(file_path):
     db.session.commit()
     print("Users imported.")
 
-def import_subjects(file_path):
-    """Import Subjects CSV."""
+def import_courses(file_path):
+    """Import Courses CSV."""
     with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            subject_id, subject_name = row
+            course_id, course_name = row
             exists = db.session.execute(
-                text("SELECT 1 FROM Subjects WHERE subject_id = :id"),
-                {"id": subject_id}
+                text("SELECT 1 FROM Courses WHERE course_id = :id"),
+                {"id": course_id}
             ).fetchone()
             if exists:
                 continue
             db.session.execute(
-                text("INSERT INTO Subjects (subject_id, subject_name) VALUES (:id, :name)"),
-                {"id": subject_id, "name": subject_name}
+                text("INSERT INTO Courses (course_id, course_name) VALUES (:id, :name)"),
+                {"id": course_id, "name": course_name}
             )
     db.session.commit()
-    print("Subjects imported.")
+    print("Courses imported.")
 
 def import_teaches(file_path):
     """Import Teaches CSV."""
     with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            tutor_email, subject_id = row
+            tutor_email, course_id = row
             exists = db.session.execute(
-                text("SELECT 1 FROM Teaches WHERE tutor_email = :tutor AND subject_id = :subject"),
-                {"tutor": tutor_email, "subject": subject_id}
+                text("SELECT 1 FROM Teaches WHERE tutor_email = :tutor AND course_id = :course"),
+                {"tutor": tutor_email, "course": course_id}
             ).fetchone()
             if exists:
                 continue
             db.session.execute(
-                text("INSERT INTO Teaches (tutor_email, subject_id) VALUES (:tutor, :subject)"),
-                {"tutor": tutor_email, "subject": subject_id}
+                text("INSERT INTO Teaches (tutor_email, course_id) VALUES (:tutor, :course)"),
+                {"tutor": tutor_email, "course": course_id}
             )
     db.session.commit()
     print("Teaches imported.")
@@ -103,7 +103,7 @@ def import_tutor_session(file_path):
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile, fieldnames=[
             "session_id", "tutor_email", "student_email",
-            "subject_id", "availability_id", "session_location", "session_status"
+            "course_id", "availability_id", "session_location", "session_status"
         ])
         for row in reader:
             session_id = int(row["session_id"])
@@ -116,14 +116,14 @@ def import_tutor_session(file_path):
             db.session.execute(
                 text("""
                     INSERT INTO TutorSession
-                    (session_id, tutor_email, student_email, subject_id, availability_id, session_location, session_status)
-                    VALUES (:session_id, :tutor_email, :student_email, :subject_id, :availability_id, :location, :status)
+                    (session_id, tutor_email, student_email, course_id, availability_id, session_location, session_status)
+                    VALUES (:session_id, :tutor_email, :student_email, :course_id, :availability_id, :location, :status)
                 """),
                 {
                     "session_id": session_id,
                     "tutor_email": row["tutor_email"],
                     "student_email": row["student_email"],
-                    "subject_id": row["subject_id"],
+                    "course_id": row["course_id"],
                     "availability_id": int(row["availability_id"]),
                     "location": row["session_location"],
                     "status": row["session_status"]
@@ -135,7 +135,7 @@ def import_tutor_session(file_path):
 if __name__ == "__main__":
     with app.app_context():
         import_users("Users.csv")
-        import_subjects("Subjects.csv")
+        import_courses("Courses.csv")
         import_teaches("Teaches.csv")
         import_tutor_availability("TutorAvailability.csv")
         import_tutor_session("TutorSession.csv")
