@@ -116,7 +116,7 @@ def import_tutor_session(file_path):
             db.session.execute(
                 text("""
                     INSERT INTO TutorSession
-                    (session_id, tutor_email, student_email, course_id, availability_id, session_location, session_status)
+                    (session_id, student_email, course_id, availability_id, session_location, session_status)
                     VALUES (:session_id, :tutor_email, :student_email, :course_id, :availability_id, :location, :status)
                 """),
                 {

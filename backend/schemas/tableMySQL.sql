@@ -28,23 +28,34 @@ CREATE TABLE Teaches (
 ) ENGINE=InnoDB;
 
 CREATE TABLE TutorAvailability (
-  availability_id INT NOT NULL PRIMARY KEY,
+  availability_id INT AUTO_INCREMENT PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
-  available_time DATETIME NOT NULL UNIQUE,
-  tutor_status ENUM('available', 'booked') NOT NULL,
+  week_day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  --Prevent duplicate entries
+  UNIQUE (tutor_email, week_day, start_time, end_time),
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
 ) ENGINE=InnoDB;
 
 CREATE TABLE TutorSession (
-  session_id INT NOT NULL PRIMARY KEY,
-  tutor_email VARCHAR(100) NOT NULL,
+  session_id INT AUTO_INCREMENT PRIMARY KEY,
   student_email VARCHAR(100) NOT NULL,
   course_id VARCHAR(20) NOT NULL,
-  availability_id INT NOT NULL UNIQUE,
+  availability_id INT NOT NULL,
   session_location VARCHAR(100) NOT NULL,
+  session_datetime DATETIME NOT NULL,
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
-  FOREIGN KEY (tutor_email) REFERENCES Users(email),
+
+  UNIQUE (availability_id, session_datetime),
+
   FOREIGN KEY (student_email) REFERENCES Users(email),
   FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
 ) ENGINE=InnoDB;
+
+CREATE INDEX idx_tutor_availability 
+ON TutorAvailability(tutor_email, week_day);
+
+CREATE INDEX idx_session_datetime 
+ON TutorSession(session_datetime);
