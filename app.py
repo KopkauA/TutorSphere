@@ -34,7 +34,16 @@ def login_post():
     email = request.form['email']
     password = request.form['password']
 
-    user = User.query.filter_by(email=email, password=password).first()
+    result = db.session.execute(text("""
+        SELECT * 
+        FROM User 
+        WHERE email = :email AND password = :password
+    """), {
+        "email": email,
+        "password": password
+    })
+
+    user = result.fetchone()
 
     if user:
         return redirect(url_for('menu'))
@@ -181,7 +190,7 @@ def search_sessions():
 
     return render_template("session_search.html", sessions=sessions, my_sessions=my_sessions)
 
-# view personal user's sessions 
+
 @app.route("/book/<int:availability_id>", methods=["POST"])
 def book_session(availability_id):
     db.session.execute(
