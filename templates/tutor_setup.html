@@ -6,21 +6,162 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and subjec
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Tutor Setup</title>
 
-    <label>Subjects:</label><br>
-
-    <input type="text" id="subjectInput" placeholder="Type a subject...">
-
-    <div id="suggestions" style="border:1px solid #ccc; max-width:300px;"></div>
-
-    <!-- selected subjects appear -->
-    <div id="selectedSubjects" style="margin-top:10px;"></div>
-
-    <!-- stores IDs for backend -->
-    <input type="hidden" name="subject_ids" id="subjectIds">
-
-    <title>Session Selection</title>
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='session_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        /* small additions for autocomplete chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            margin: 6px 6px 0 0;
+            border: 2px solid var(--border);
+            border-radius: 9999px;
+            background: white;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .chip button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .chip button:hover {
+            color: red;
+        }
+
+        .suggestions {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            margin-top: 6px;
+            background: white;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg);
+        }
+    </style>
 </head>
 
+<body>
+
+<div class="content-wrapper">
+    <h1 class="page-title">Tutor Setup</h1>
+    <div class="card">
+
+        <form method="POST">
+            <!-- COURSES INPUT -->
+            <div class="form-group">
+                <label class="form-label">Courses you teach</label>
+
+                <input
+                    type="text"
+                    id="courseInput"
+                    class="form-input"
+                    placeholder="Type a course name..."
+                    autocomplete="off"
+                >
+
+                <div id="suggestions" class="suggestions"></div>
+
+                <!-- selected -->
+                <div id="selectedCourses" style="margin-top: 12px;"></div>
+
+                <!-- backend stores course IDs -->
+                <input type="hidden" name="course_ids" id="courseIds">
+            </div>
+
+            <!-- AVAILABILITY -->
+            <div class="form-group">
+                <label class="form-label">Available Time</label>
+                <input type="datetime-local" name="available_time" class="form-input" required>
+            </div>
+
+            <button type="submit" class="button">Finish Setup</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+let selected = []; // {id, name}
+
+// autocomplete
+document.getElementById("courseInput").addEventListener("input", async function () {
+    const q = this.value;
+
+    if (q.length < 1) {
+        document.getElementById("suggestions").innerHTML = "";
+        return;
+    }
+
+    const res = await fetch(`/api/courses?q=${q}`);
+    const data = await res.json();
+
+    let html = "";
+
+    data.courses.forEach(c => {
+        html += `
+            <div class="suggestion-item" onclick="addCourse('${c.id}', '${c.name}')">
+                ${c.name}
+            </div>
+        `;
+    });
+
+    document.getElementById("suggestions").innerHTML = html;
+});
+
+// add course
+function addCourse(id, name) {
+    if (selected.find(c => c.id === id)) return;
+
+    selected.push({id, name});
+    updateUI();
+}
+
+// remove course
+function removeCourse(id) {
+    selected = selected.filter(c => c.id !== id);
+    updateUI();
+}
+
+// update UI + hidden input
+function updateUI() {
+    const container = document.getElementById("selectedCourses");
+    const hidden = document.getElementById("courseIds");
+
+    container.innerHTML = "";
+
+    selected.forEach(c => {
+        container.innerHTML += `
+            <span class="chip">
+                ${c.name}
+                <button type="button" onclick="removeCourse('${c.id}')">×</button>
+            </span>
+        `;
+    });
+
+    hidden.value = selected.map(c => c.id).join(",");
+}
+</script>
+
+</body>
+</html>
