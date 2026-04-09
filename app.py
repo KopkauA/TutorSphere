@@ -1,7 +1,7 @@
 # to run, use python app.py
 
 import os
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -23,12 +23,12 @@ with app.app_context():
     db.session.execute(text('SELECT 1'))
     print('DB Connection Successful')
 
-# page routes
+# -------- PAGE ROUTES -------- #
 @app.route("/")
 def login():
     return render_template("login.html")
 
-
+# login page 
 @app.route("/login", methods=["POST"])
 def login_post():
     email = request.form['email']
@@ -37,75 +37,137 @@ def login_post():
     user = User.query.filter_by(email=email, password=password).first()
 
     if user:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('menu'))
     
     return render_template("login.html", error="Invalid email or password")
 
 
-@app.route("/dashboard")
-def dashboard():
-    return "<h1>You are logged in.</h1>"
-
-@app.route("/signup")
-def signup_choice():
-    return render_template("signup_choice.html")
-
-
-@app.route('/signup/student', methods=['GET', 'POST'])
+@app.route("/signup", methods=["GET", "POST"])
 def signup_student():
     if request.method == 'POST':
         email = request.form['email']
         fname = request.form['fname']   
         lname = request.form['lname']   
         password = request.form['password']
+        role = request.form["role"]   #(student or tutor)
 
-        new_user = User(
-            email=email,
-            fname=fname,
-            lname=lname,
-            password=password,
-            role='student'
-        )
+        query = """
+            INSERT INTO Users (email, fname, lname, password, role)
+            VALUES (:email, :fname, :lname, :password, :role)
+            """
 
-        db.session.add(new_user)
+        params = {
+            "email": email,
+            "fname": fname,
+            "lname": lname,
+            "password": password,
+            "role": "student"
+        }
+
+        db.session.execute(text(query), params)
         db.session.commit()
 
+        if role == "tutor":
+            return redirect(url_for("tutor_setup", email=email))
+        
         return redirect(url_for('login'))
+    return render_template('signup.html')
 
-    return render_template('signup_student.html')
+# after signup, initial tutor setup 
+@app.route("/tutor/setup/<email>", methods=["GET", "POST"])
+def tutor_setup(email):
+    if request.method == "POST":
 
-STUDENT_EMAIL = "student1@example.com"
+        subject_ids = request.form["course_ids"].split(",")
+        available_time = request.form["available_time"]
 
+        # insert multiple subjects
+        for sid in subject_ids:
+            sid = sid.strip()
+            if sid == "":
+                continue
 
-@app.route("/signup/tutor")
-def signup_tutor():
-    return render_template("signup_tutor.html")
+            db.session.execute(text("""
+                INSERT INTO Teaches (tutor_email, course_id)
+                VALUES (:email, :course_id)
+            """), {
+                "email": email,
+                "course_id": sid
+            })
 
+        # insert availability
+        db.session.execute(text("""
+            INSERT INTO TutorAvailability (tutor_email, available_time, tutor_status)
+            VALUES (:email, :time, 'available')
+        """), {
+            "email": email,
+            "time": available_time
+        })
+
+        db.session.commit()
+
+        return redirect(url_for("login"))
+
+    return render_template("tutor_setup.html", email=email)
+
+# autocomplete course bar 
+@app.route("/api/courses")
+def get_subjects():
+    q = request.args.get("q", "")
+
+    query = """
+    SELECT course_id, course_name
+    FROM Courses
+    WHERE course_name LIKE :q
+    ORDER BY course_name
+    LIMIT 10
+    """
+
+    results = db.session.execute(text(query), {
+        "q": f"%{q}%"
+    }).fetchall()
+
+    return jsonify({
+        "courses": [
+            {
+                "id": r.course_id,        # (stored)
+                "name": r.course_name     # (shown)
+            }
+            for r in results
+        ]
+    })
+
+# website main menu 
+@app.route("/menu")
+def dashboard():
+    return "<h1>You are logged in.</h1>"
+
+# search for sessions
 @app.route("/search", methods=["GET", "POST"])
 def search_sessions():
     sessions = []  # empty default
     my_sessions = []  # optional, for sidebar
 
     if request.method == "POST":
-        subject_id = request.form.get("subject")
+        subject_id = request.form.get("course")
         tutor = request.form.get("tutor")
         time = request.form.get("time")
 
         query = """
         SELECT ta.availability_id, ta.available_time,
                u.fname, u.lname,
-               s.subject_id, s.subject_name
+               c.course_id, s.subject_name
         FROM TutorAvailability ta
         JOIN Users u ON ta.tutor_email = u.email
         JOIN Teaches t ON u.email = t.tutor_email
-        JOIN Subjects s ON t.subject_id = s.subject_id
+        JOIN Courses c ON t.course_id = c.course_id
         WHERE ta.tutor_status = 'available'
         """
         params = {}
 
         if subject_id:
-            query += " AND s.subject_id = :subject_id"
-            params["subject_id"] = subject_id
+            query += " AND c.course_id = :course_id"
+            params["course_id"] = subject_id
 
         if tutor:
             query += " AND (u.fname LIKE :tutor OR u.lname LIKE :tutor)"
@@ -119,6 +181,7 @@ def search_sessions():
 
     return render_template("session_search.html", sessions=sessions, my_sessions=my_sessions)
 
+# view personal user's sessions 
 @app.route("/book/<int:availability_id>", methods=["POST"])
 def book_session(availability_id):
     db.session.execute(
@@ -129,7 +192,7 @@ def book_session(availability_id):
         {"id": availability_id}
     )
     db.session.commit()
-    return redirect(url_for("search_sessions"))
+    return redirect(url_for("search_courses"))
 
 # for looking at personal active/completed/cancelled sessions
 @app.route("/my-sessions")

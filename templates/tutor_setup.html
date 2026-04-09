@@ -1,0 +1,26 @@
+<!-- 
+
+STEP 2 OF SIGNUP: this is where tutors will select their availability and subjects they teach
+ 
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+
+    <label>Subjects:</label><br>
+
+    <input type="text" id="subjectInput" placeholder="Type a subject...">
+
+    <div id="suggestions" style="border:1px solid #ccc; max-width:300px;"></div>
+
+    <!-- selected subjects appear -->
+    <div id="selectedSubjects" style="margin-top:10px;"></div>
+
+    <!-- stores IDs for backend -->
+    <input type="hidden" name="subject_ids" id="subjectIds">
+
+    <title>Session Selection</title>
+    <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='session_styles.css') }}">
+</head>
+

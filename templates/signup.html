@@ -8,7 +8,7 @@ Purpose: gives student the role of student
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Student Sign Up</title>
+  <title>Sign Up</title>
   <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 <body>
@@ -16,19 +16,28 @@ Purpose: gives student the role of student
   <h2>Step 2: Add Account Details</h2>
 
   <form method="POST" action="{{ url_for('signup_student') }}">
+    <!-- ROLE SELECTION -->
+    <label>Account Type:</label><br>
+    <select name="role" required>
+      <option value="student">Student</option>
+      <option value="tutor">Tutor</option>
+    </select><br><br>
+    
+    <!-- NAME -->
     <label>First Name:</label><br>
     <input type="text" name="fname" required><br><br>
-
     <label>Last Name:</label><br>
     <input type="text" name="lname" required><br><br>
 
+    <!-- EMAIL -->
     <label>Email:</label><br>
     <input type="email" name="email" required><br><br>
-
+    
+    <!-- PASSWORD -->
     <label>Password:</label><br>
     <input type="password" name="password" required><br><br>
 
-    <button type="submit">Create Account</button>
+    <button type="submit">Next</button>
   </form>
 
   <br>
