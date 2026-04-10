@@ -17,6 +17,7 @@ search_sessions_query = text("""
     JOIN Courses c ON t.course_id = c.course_id
     WHERE 1=1
 """)
+
 my_sessions_query = text("""
     SELECT ts.session_id,
            ts.session_datetime,
