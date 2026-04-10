@@ -11,8 +11,10 @@ from backend.sql_queries import *
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
@@ -76,55 +78,9 @@ def signup():
 
     return render_template('signup.html')
 
- # Initial Tutor Settings
+
 @app.route("/signup/tutor", methods=["GET", "POST"])
 def signup_tutor():
-
-    if 'user_email' not in session:
-        return redirect(url_for('login'))
-
-    if request.method == "POST":
-        email = session['user_email']
-        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-
-        # -------------------
-        # INSERT AVAILABILITY
-        # -------------------
-        for day in days:
-            start = request.form.get(f"{day}_start")
-            end = request.form.get(f"{day}_end")
-
-            if start and end:
-                if start >= end:
-                    continue
-
-                db.session.execute(text("""
-                    INSERT INTO TutorAvailability (tutor_email, week_day, start_time, end_time)
-                    VALUES (:email, :day, :start, :end)
-                """), {
-                    "email": email,
-                    "day": day,
-                    "start": start,
-                    "end": end
-                })
-
-        # INSERT COURSES
-        course_ids = request.form.get("course_ids", "").split(",")
-
-        for cid in course_ids:
-            if cid:
-                db.session.execute(text("""
-                    INSERT INTO Teaches (tutor_email, course_id)
-                    VALUES (:email, :course_id)
-                """), {
-                    "email": email,
-                    "course_id": cid
-                })
-
-        db.session.commit()
-
-        return redirect(url_for("search_sessions"))
-
     return render_template("signup_tutor.html")
 
 
@@ -141,6 +97,7 @@ def search_sessions():
     selected_weekday = None
 
     if request.method == "POST":
+        action = request.form.get("action")
 
         subject_id = request.form.get("course")
         selected_date = request.form.get("time")
@@ -187,54 +144,7 @@ def search_sessions():
         max_date=max_date
     )
 
-
-# BOOK SESSION
-@app.route("/book", methods=["POST"])
-def book_session():
-
-    if 'user_email' not in session:
-        return redirect(url_for('login'))
-
-    availability_id = request.form.get("availability_id")
-    course_id = request.form.get("course_id")
-    date = request.form.get("date")
-    start_time = request.form.get("start_time")
-    location = request.form.get("location")
-
-    session_datetime = datetime.strptime(
-        f"{date} {start_time}",
-        "%Y-%m-%d %H:%M:%S"
-    )
-
-    now = datetime.now()
-
-    if session_datetime > now + timedelta(days=7):
-        return "You can only book within 1 week.", 400
-
-    if session_datetime < now:
-        return "Cannot book past sessions.", 400
-
-    db.session.execute(
-        text("""
-            INSERT INTO TutorSession
-            (student_email, course_id, availability_id, session_location, session_datetime, session_status)
-            VALUES (:email, :course_id, :availability_id, :location, :session_datetime, 'scheduled')
-        """),
-        {
-            "email": session['user_email'],
-            "course_id": course_id,
-            "availability_id": availability_id,
-            "location": location,
-            "session_datetime": session_datetime
-        }
-    )
-
-    db.session.commit()
-
-    return redirect(url_for("search_sessions"))
-
-
-# My Sessions
+# MY SESSIONS
 @app.route("/my-sessions")
 def my_sessions():
 
@@ -247,6 +157,7 @@ def my_sessions():
     ).fetchall()
 
     return render_template("my_sessions.html", sessions=sessions)
+
 
 
 if __name__ == "__main__":

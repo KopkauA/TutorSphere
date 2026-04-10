@@ -72,6 +72,11 @@ insert_availability = text("""
     VALUES (:tutor_email, :week_day, :start_time, :end_time)
 """)
 
+insert_session = text("""
+    INSERT INTO TutorSession (student_email, course_id, availability_id, session_location, session_datetime, session_status)
+    VALUES (:email, :course_id, :availability_id, :location, :session_datetime, 'scheduled')
+""")
+
 get_courses = text("""
     SELECT course_id, course_name
     FROM Courses
@@ -79,3 +84,12 @@ get_courses = text("""
     ORDER BY course_name
     LIMIT 10
 """)
+
+session_exists = text("""
+    SELECT 1
+    FROM TutorSession
+    WHERE availability_id = :availability_id AND
+        session_datetime = :session_datetime AND
+        session_status = 'scheduled'
+"""
+)
