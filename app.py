@@ -17,17 +17,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 db.init_app(app)
 
 
-# --------------------------
 # DB TEST
-# --------------------------
 with app.app_context():
     db.session.execute(text("SELECT 1"))
     print("DB Connection Successful")
 
 
-# --------------------------
 # LOGIN
-# --------------------------
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -53,9 +49,7 @@ def login_post():
     return render_template("login.html", error="Invalid credentials")
 
 
-# --------------------------
 # SIGNUP
-# --------------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
 
@@ -82,9 +76,7 @@ def signup():
 
     return render_template('signup.html')
 
- # ----------------------
  # Initial Tutor Settings
- # ----------------------
 @app.route("/signup/tutor", methods=["GET", "POST"])
 def signup_tutor():
 
@@ -116,9 +108,7 @@ def signup_tutor():
                     "end": end
                 })
 
-        # -------------------
         # INSERT COURSES
-        # -------------------
         course_ids = request.form.get("course_ids", "").split(",")
 
         for cid in course_ids:
@@ -178,7 +168,7 @@ def search_sessions():
 
         sessions_list = db.session.execute(text(query), params).fetchall()
 
-    # My sessions (REAL USER)
+    # My sessions
     my_sessions_list = db.session.execute(
         my_sessions_query,
         {"email": session['user_email']}
@@ -244,7 +234,7 @@ def book_session():
     return redirect(url_for("search_sessions"))
 
 
-# MY SESSIONS
+# My Sessions
 @app.route("/my-sessions")
 def my_sessions():
 
