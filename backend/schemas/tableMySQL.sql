@@ -33,7 +33,7 @@ CREATE TABLE TutorAvailability (
   week_day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
   start_time TIME NOT NULL,
   end_time TIME NOT NULL,
-  --Prevent duplicate entries
+  
   UNIQUE (tutor_email, week_day, start_time, end_time),
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
 ) ENGINE=InnoDB;
