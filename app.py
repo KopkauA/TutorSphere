@@ -82,9 +82,59 @@ def signup():
 
     return render_template('signup.html')
 
-
+ # ----------------------
+ # Initial Tutor Settings
+ # ----------------------
 @app.route("/signup/tutor", methods=["GET", "POST"])
 def signup_tutor():
+
+    if 'user_email' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == "POST":
+        email = session['user_email']
+        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+        # -------------------
+        # INSERT AVAILABILITY
+        # -------------------
+        for day in days:
+            start = request.form.get(f"{day}_start")
+            end = request.form.get(f"{day}_end")
+
+            if start and end:
+                if start >= end:
+                    continue
+
+                db.session.execute(text("""
+                    INSERT INTO TutorAvailability (tutor_email, week_day, start_time, end_time)
+                    VALUES (:email, :day, :start, :end)
+                """), {
+                    "email": email,
+                    "day": day,
+                    "start": start,
+                    "end": end
+                })
+
+        # -------------------
+        # INSERT COURSES
+        # -------------------
+        course_ids = request.form.get("course_ids", "").split(",")
+
+        for cid in course_ids:
+            if cid:
+                db.session.execute(text("""
+                    INSERT INTO Teaches (tutor_email, course_id)
+                    VALUES (:email, :course_id)
+                """), {
+                    "email": email,
+                    "course_id": cid
+                })
+
+        db.session.commit()
+
+        return redirect(url_for("search_sessions"))
+
     return render_template("signup_tutor.html")
 
 

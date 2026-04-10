@@ -215,14 +215,16 @@
 }
         
 .book-btn { 
-    padding: 6px 20px; 
-    background-color: white; 
-    border: 2px solid var(--border); 
-    border-radius: 9999px; 
-    cursor: pointer; font-size: 13px; 
-    color: var(--text); 
-    transition: background-color 0.2s; }
-        
+    padding: 8px 20px;
+    border: 2px solid var(--border);
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    background-color: white;
+    transition: background-color 0.2s;
+}
+
 .book-btn:hover {
     background-color: var(--bg);
 }
@@ -233,4 +235,50 @@
         
 .session-divider {
     display: none;
+}
+
+/* For Tutor Setup */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    margin: 6px 6px 0 0;
+    border: 2px solid var(--border);
+    border-radius: 9999px;
+    background: white;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.chip button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.chip button:hover {
+    color: red;
+}
+
+.suggestions {
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 6px;
+    background: white;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.suggestion-item:hover {
+    background: var(--bg);
 }

@@ -3,6 +3,7 @@
 STEP 2 OF SIGNUP: this is where tutors will select their availability and courses they teach
  
  -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,56 +12,9 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
-    <style>
-        /* small additions for autocomplete chips */
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            margin: 6px 6px 0 0;
-            border: 2px solid var(--border);
-            border-radius: 9999px;
-            background: white;
-            font-size: 13px;
-            color: var(--text);
-        }
-
-        .chip button {
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .chip button:hover {
-            color: red;
-        }
-
-        .suggestions {
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            margin-top: 6px;
-            background: white;
-            max-height: 180px;
-            overflow-y: auto;
-        }
-
-        .suggestion-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .suggestion-item:hover {
-            background: var(--bg);
-        }
-    </style>
 </head>
 
 <body>
-
 <div class="content-wrapper">
     <h1 class="page-title">Tutor Setup</h1>
     <div class="card">
@@ -90,7 +44,7 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
             <!-- AVAILABILITY -->
             <div class="form-group">
                 <label class="form-label">Available Time</label>
-                <input type="datetime-local" name="available_time" class="form-input" required>
+                <div id="availability-container"></div>
             </div>
 
             <button type="submit" class="button">Finish Setup</button>
@@ -101,10 +55,12 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
 
 </div>
 
+<!--For course selection-->
 <script>
+
 let selected = []; // {id, name}
 
-// autocomplete
+// autocomplete logic
 document.getElementById("courseInput").addEventListener("input", async function () {
     const q = this.value;
 
@@ -162,6 +118,66 @@ function updateUI() {
     hidden.value = selected.map(c => c.id).join(",");
 }
 </script>
+
+<!--For availability selection-->
+<script>
+const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+function formatTime(hour, minute) {
+    let period = hour >= 12 ? "PM" : "AM";
+    let displayHour = hour % 12 || 12;
+    let min = minute === 0 ? "00" : "30";
+    return `${displayHour}:${min} ${period}`;
+}
+
+function generateTimes() {
+    let options = `<option value="" selected disabled>Select time</option>`;
+
+    for (let h = 7; h <= 21; h++) {
+        options += `<option value="${String(h).padStart(2,'0')}:00">${formatTime(h,0)}</option>`;
+        options += `<option value="${String(h).padStart(2,'0')}:30">${formatTime(h,30)}</option>`;
+    }
+
+    return options;
+}
+
+function renderAvailability() {
+    const container = document.getElementById("availability-container");
+
+    container.innerHTML = days.map(day => `
+        <div class="day-block">
+            <label>
+                <input type="checkbox" onchange="toggleDay('${day}')">
+                <strong>${day}</strong>
+            </label>
+
+            <div id="${day}-times" class="time-block">
+                <select name="${day}_start" class="form-input">
+                    ${generateTimes()}
+                </select>
+
+                <select name="${day}_end" class="form-input">
+                    ${generateTimes()}
+                </select>
+            </div>
+        </div>
+    `).join("");
+}
+
+function toggleDay(day) {
+    const div = document.getElementById(`${day}-times`);
+    const isOpen = div.style.display === "block";
+
+    div.style.display = isOpen ? "none" : "block";
+
+    if (isOpen) {
+        div.querySelectorAll("select").forEach(s => s.value = "");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", renderAvailability);
+</script>
+
 
 </body>
 </html>
