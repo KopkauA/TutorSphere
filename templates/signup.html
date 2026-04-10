@@ -10,10 +10,11 @@ Purpose: gives student the role of student
 <head>
   <title>Sign Up</title>
   <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
-  <h2>Step 2: Add Account Details</h2>
+  <h2>Add Account Details</h2>
 
   <form method="POST" action="{{ url_for('signup') }}">
     <!-- ROLE SELECTION -->
