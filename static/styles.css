@@ -1,3 +1,6 @@
+/* ---------------------
+   1. ROOT VARIABLES
+---------------------- */
 :root {
   --primary: #4a90e2;
   --primary-dark: #357abd;
@@ -9,28 +12,27 @@
   --radius: 12px;
 }
 
-/* Layout */
+/* ---------------------
+   2. GLOBAL RESET / BASE
+--------------------- */
 * {
   box-sizing: border-box;
 }
 
-.body{
-  background-color: #f4f6f8;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--bg);
 }
 
+/* ---------------------
+   3. LAYOUT
+--------------------- */
 .content-wrapper {
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
   padding: 48px 24px;
-}
-
-.page-title {
-  font-size: 36px;
-  font-weight: bold;
-  color: var(--text);
-  text-align: center;
-  margin-bottom: 48px;
 }
 
 .main-layout {
@@ -42,22 +44,41 @@
   flex: 1;
 }
 
-/* Cards */
-.card, .sidebar-card {
-  background-color: white;
+/* ---------------------
+   4. TYPOGRAPHY
+--------------------- */
+.page-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+/* ---------------------
+   5. CARDS
+--------------------- */
+.card,
+.sidebar-card {
+  background: white;
   border: 2px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 32px;
 }
 
-/* Course Info Section */
+/* ---------------------
+   6. FORMS
+--------------------- */
 .form-group {
   margin-bottom: 16px;
-}
-
-.form-group:last-of-type {
-  margin-bottom: 24px;
 }
 
 .form-label {
@@ -72,7 +93,7 @@
   padding: 8px 16px;
   border: 2px solid var(--border);
   border-radius: var(--radius);
-  background-color: white;
+  background: white;
   color: var(--text);
   font-size: 14px;
 }
@@ -87,54 +108,82 @@
   box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
 }
 
-/* Buttons */
-.button, .session-button, .card button {
-  padding: 8px 32px;
-  background-color: white;
-  border: 2px solid var(--border);
+/* ---------------------
+   7. BUTTONS
+--------------------- */
+.button {
+  padding: 10px 20px;
+  background: var(--primary);
+  border: none;
   border-radius: 9999px;
   cursor: pointer;
   font-size: 14px;
-  color: var(--text);
-  transition: background-color 0.2s;
+  color: white;
+  transition: 0.2s;
 }
 
-.button:hover, .session-button:hover, .card button:hover {
-  background-color: var(--bg);
+.button:hover {
+  background: var(--primary-dark);
 }
 
-/* Sessions Section */
-.section-title {
-  font-size: 20px;
+/* ---------------------
+   8. TABLES / SESSIONS
+--------------------- */
+.sessions-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.sessions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sessions-table th {
+  text-align: left;
+  padding: 12px 16px;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  background-color: #ddd;
 }
 
-.session-list {
-  display: flex;
-  flex-direction: column;
+.sessions-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
 }
 
-.session-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
+.sessions-table tr:last-child td {
+  border-bottom: none;
 }
 
-.session-info {
-  display: flex;
-  gap: 48px;
+/* ---------------------
+   9. SESSION UI
+--------------------- */
+.course-code { font-weight: 600; color: var(--primary); }
+.course-name { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.tutor-name { font-weight: 500; }
+.time-slot { color: var(--text); }
+
+.book-btn {
+  padding: 8px 20px;
+  border: 2px solid var(--border);
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 13px;
+  background: white;
+  transition: 0.2s;
 }
 
-.session-divider {
-  height: 1px;
-  background-color: var(--border);
-  margin: 0;
+.book-btn:hover {
+  background: var(--bg);
 }
 
-/* Sidebar */
+/* ---------------------
+   10. SIDEBAR
+--------------------- */
 .sidebar {
   width: 320px;
 }
@@ -142,13 +191,6 @@
 .sidebar-card {
   position: sticky;
   top: 48px;
-}
-
-.sidebar-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 16px;
 }
 
 .empty-state {
@@ -165,120 +207,49 @@
   font-size: 14px;
 }
 
-.sessions-table-wrapper {
-    overflow-x: auto;
-    width: 100%;
+/* ---------------------
+   11. TUTOR SETUP
+--------------------- */
+.time-block {
+  display: none;
+  margin-top: 10px;
+  gap: 10px;
 }
-        
-.sessions-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-        
-.sessions-table th {
-    text-align: left;
-    padding: 12px 16px;
-    font-weight: 600;
-    color: var(--text);
-    border-bottom: 2px solid var(--border);
-    background-color: #ddd;
-}
-        
-.sessions-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-}
-        
-.sessions-table tr:last-child td {
-    border-bottom: none;
-}
-        
-.course-code {
-    font-weight: 600;
-    color: var(--primary);
-}
-        
-.course-name {
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 4px;
-}
-        
-.tutor-name {
-    font-weight: 500;
-}
-        
-.time-slot {
-    color: var(--text);
-}
-        
-.book-btn { 
-    padding: 8px 20px;
-    border: 2px solid var(--border);
-    border-radius: 9999px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text);
-    background-color: white;
-    transition: background-color 0.2s;
-}
-
-.book-btn:hover {
-    background-color: var(--bg);
-}
-        
-.session-list {
-    display: block;
-}
-        
-.session-divider {
-    display: none;
-}
-
-/* For Tutor Setup */
 
 .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    margin: 6px 6px 0 0;
-    border: 2px solid var(--border);
-    border-radius: 9999px;
-    background: white;
-    font-size: 13px;
-    color: var(--text);
-}
-
-.chip button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.chip button:hover {
-    color: red;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin: 6px 6px 0 0;
+  border: 2px solid var(--border);
+  border-radius: 9999px;
+  background: white;
+  font-size: 13px;
+  color: var(--text);
 }
 
 .suggestions {
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    margin-top: 6px;
-    background: white;
-    max-height: 180px;
-    overflow-y: auto;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 6px;
+  background: white;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .suggestion-item {
-    padding: 10px 12px;
-    cursor: pointer;
-    font-size: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .suggestion-item:hover {
-    background: var(--bg);
+  background: var(--bg);
+}
+
+.availability-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
