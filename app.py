@@ -11,10 +11,8 @@ from backend.sql_queries import *
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
@@ -90,9 +88,7 @@ def signup_tutor():
     return render_template("signup_tutor.html")
 
 
-# --------------------------
 # SEARCH SESSIONS
-# --------------------------
 @app.route("/search", methods=["GET", "POST"])
 def search_sessions():
 
@@ -152,9 +148,7 @@ def search_sessions():
     )
 
 
-# --------------------------
 # BOOK SESSION
-# --------------------------
 @app.route("/book", methods=["POST"])
 def book_session():
 
@@ -200,9 +194,7 @@ def book_session():
     return redirect(url_for("search_sessions"))
 
 
-# --------------------------
 # MY SESSIONS
-# --------------------------
 @app.route("/my-sessions")
 def my_sessions():
 

@@ -77,6 +77,29 @@ def import_teaches(file_path):
         next(reader)
 
         for tutor_email, course_id in reader:
+            tutor_email = tutor_email.strip()
+            course_id = course_id.strip()
+
+            # Check tutor exists AND is actually a tutor
+            tutor = db.session.execute(text("""
+                SELECT 1 FROM Users 
+                WHERE email = :email AND role = 'tutor'
+            """), {"email": tutor_email}).fetchone()
+
+            if not tutor:
+                print(f" Warning: {tutor_email} is not a valid tutor, skipping...")
+                continue
+
+            # Check course exists
+            course = db.session.execute(text("""
+                SELECT 1 FROM Courses WHERE course_id = :id
+            """), {"id": course_id}).fetchone()
+
+            if not course:
+                print(f" Warning: {course_id} does not exist, skipping...")
+                continue
+
+            # Avoid duplicates
             exists = db.session.execute(text("""
                 SELECT 1 FROM Teaches 
                 WHERE tutor_email=:t AND course_id=:c
@@ -91,8 +114,8 @@ def import_teaches(file_path):
             """), {"t": tutor_email, "c": course_id})
 
     db.session.commit()
+    
     print(" Teaches imported")
-
 
 # ---------------- AVAILABILITY ----------------
 def import_tutor_availability(file_path):
