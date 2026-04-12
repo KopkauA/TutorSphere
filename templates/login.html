@@ -128,7 +128,7 @@ Purpose: brings user to the main page
     <h2>Welcome to TutorSphere</h2>
     <div class="subtitle">Please enter your credentials to continue</div>
 
-    <form method="POST" action="/login">
+    <form method="POST" action="{{ url_for('login_route') }}">
       <!-- EMAIL -->
       <div class="input-box">
         <i class="fa fa-user"></i>
@@ -149,7 +149,7 @@ Purpose: brings user to the main page
       <button type="submit">Login</button>
     </form>
 
-    <a class="link" href="/signup_route">Don't have an account? Sign up</a>
+    <a class="link" href="{{ url_for('signup_route') }}">Don't have an account? Sign up</a>
   </div>
 </body>
 </html>

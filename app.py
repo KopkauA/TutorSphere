@@ -26,30 +26,24 @@ with app.app_context():
 
 
 # LOGIN
-@app.route("/")
-def login():
+@app.route("/login", methods=["GET", "POST"])
+def login_route():
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        user = db.session.execute(
+            get_user,
+            {"email": email, "password": password}
+        ).fetchone()
+
+        if user:
+            session['user_email'] = email
+            return redirect(url_for("dashboard_route"))
+
+        return render_template("login.html", error="Invalid credentials")
+
     return render_template("login.html")
-
-
-@app.route("/login", methods=["POST"])
-def login_post():
-    email = request.form['email']
-    password = request.form['password']
-
-    user = db.session.execute(
-        text("""
-            SELECT * FROM Users
-            WHERE email = :email AND password = :password
-        """),
-        {"email": email, "password": password}
-    ).fetchone()
-
-    if user:
-        session['user_email'] = email
-        return redirect(url_for("dashboard_route"))
-
-    return render_template("login.html", error="Invalid credentials")
-
 
 # SIGNUP
 @app.route('/signup', methods=['GET', 'POST'])
@@ -80,7 +74,7 @@ def signup_route():
 
 
 @app.route("/signup/tutor", methods=["GET", "POST"])
-def signup_tutor():
+def signup_tutor_route():
     return render_template("signup_tutor.html")
 
 

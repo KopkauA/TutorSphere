@@ -69,6 +69,11 @@ available_sessions_query = text("""
     )
 """)
 
+get_user = text("""
+    SELECT * FROM Users
+    WHERE email = :email AND password = :password 
+""")
+
 get_courses = text("""
     SELECT course_id, course_name
     FROM Courses
