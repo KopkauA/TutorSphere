@@ -153,7 +153,7 @@ def my_sessions_route():
         {"email": session['user_email']}
     ).fetchall()
 
-    return render_template("my_sessions.html", sessions=sessions)
+    return render_template("my_sessions.html", my_sessions=sessions)
 
 @app.route("/dashboard")
 def dashboard_route():
