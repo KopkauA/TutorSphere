@@ -24,6 +24,9 @@ with app.app_context():
     db.session.execute(text("SELECT 1"))
     print("DB Connection Successful")
 
+@app.route("/")
+def login():
+    return render_template("login.html")
 
 # LOGIN
 @app.route("/login", methods=["GET", "POST"])
