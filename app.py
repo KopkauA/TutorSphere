@@ -46,7 +46,7 @@ def login_route():
     return render_template("login.html")
 
 # SIGNUP
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup_route', methods=['GET', 'POST'])
 def signup_route():
 
     if request.method == 'POST':
@@ -68,7 +68,7 @@ def signup_route():
             session['user_email'] = params['email']
             return redirect(url_for('signup_tutor_route'))
 
-        return redirect(url_for('login_route'))
+        return redirect(url_for('login_post'))
 
     return render_template('signup.html')
 
