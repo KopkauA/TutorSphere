@@ -71,7 +71,7 @@ def signup_route():
             session['user_email'] = params['email']
             return redirect(url_for('signup_tutor_route'))
 
-        return redirect(url_for('login_post'))
+        return redirect(url_for('login_route'))
 
     return render_template('signup.html')
 
