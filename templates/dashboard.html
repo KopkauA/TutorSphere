@@ -17,8 +17,8 @@
         <div class="main-content">
             <div class="card">
                 <ul>
-                    <li><a href="/session_search">Schedule a Session</a></li>
-                    <li><a href="/session_booked">View Your Sessions</a></li>
+                    <li><a href="{{ url_for('search_sessions_route') }}">Schedule a Session</a></li>
+                    <li><a href="{{ url_for('my_sessions_route') }}">View Your Sessions</a></li>
                 </ul>
             </div>
         </div>

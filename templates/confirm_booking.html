@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body class="body">
+
+<div class="content-wrapper">
+    <div class="main-content">
+         <!-- MAIN -->
+        <div class="card">
+            <p>Your session has been booked successfully!</p>
+            <ul>
+                <li><a href="{{ url_for('search_sessions_route') }}">Schedule Another Session</a></li>
+                <li><a class="link" href="{{ url_for('dashboard_route') }}">Back to Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

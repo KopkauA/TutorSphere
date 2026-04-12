@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import text
 from dotenv import load_dotenv
 
@@ -46,14 +46,14 @@ def login_post():
 
     if user:
         session['user_email'] = email
-        return redirect(url_for("search_sessions"))
+        return redirect(url_for("dashboard_route"))
 
     return render_template("login.html", error="Invalid credentials")
 
 
 # SIGNUP
 @app.route('/signup', methods=['GET', 'POST'])
-def signup():
+def signup_route():
 
     if request.method == 'POST':
 
@@ -72,9 +72,9 @@ def signup():
 
         if role == 'tutor':
             session['user_email'] = params['email']
-            return redirect(url_for('signup_tutor'))
+            return redirect(url_for('signup_tutor_route'))
 
-        return redirect(url_for('login'))
+        return redirect(url_for('login_route'))
 
     return render_template('signup.html')
 
@@ -86,10 +86,10 @@ def signup_tutor():
 
 # SEARCH SESSIONS
 @app.route("/search", methods=["GET", "POST"])
-def search_sessions():
+def search_sessions_route():
 
     if 'user_email' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_route'))
 
     sessions_list = []
 
@@ -109,7 +109,7 @@ def search_sessions():
             ).strftime("%A")
 
         query = search_sessions_query.text
-        params = {}
+        params = {"selected_date": selected_date if selected_date else None}
         conditions = []
 
         if subject_id:
@@ -145,11 +145,11 @@ def search_sessions():
     )
 
 # MY SESSIONS
-@app.route("/my-sessions")
-def my_sessions():
+@app.route("/my_sessions")
+def my_sessions_route():
 
     if 'user_email' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login_route'))
 
     sessions = db.session.execute(
         my_sessions_query,
@@ -157,6 +157,63 @@ def my_sessions():
     ).fetchall()
 
     return render_template("my_sessions.html", sessions=sessions)
+
+@app.route("/dashboard")
+def dashboard_route():
+
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
+
+    return render_template("dashboard.html")
+
+@app.route("/confirm_booking", methods=["GET", "POST"])
+def confirm_booking_route():
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
+
+    if request.method == "POST":
+        availability_id = request.form.get("availability_id")
+        course_id = request.form.get("course_id")
+        start_time = request.form.get("start_time")
+        date = request.form.get("date")
+
+        if not date:
+            flash("Error: Please select a date to book this session.")
+            return redirect(url_for("search_sessions_route"))
+
+        try:
+            time_str = str(start_time)
+            if len(time_str.split(":")) == 2:
+                time_str += ":00"
+
+            session_datetime = datetime.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M:%S")
+
+            exists = db.session.execute(
+                session_exists,
+                {"availability_id": availability_id, "session_datetime": session_datetime}
+            ).fetchone()
+
+            if exists:
+                flash("Error: This session is already booked.")
+                return redirect(url_for("search_sessions_route"))
+
+            db.session.execute(
+                insert_session,
+                {
+                    "email": session["user_email"],
+                    "course_id": course_id,
+                    "availability_id": availability_id,
+                    "location": "Online",
+                    "session_datetime": session_datetime
+                }
+            )
+            db.session.commit()
+        except ValueError:
+            return redirect(url_for("dashboard_route"))
+            
+        return redirect(url_for("confirm_booking_route"))
+
+    return render_template("confirm_booking.html")
 
 
 
