@@ -5,7 +5,6 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
  -->
 
 <!DOCTYPE html>
-
 <html>
 <head>
 
@@ -13,7 +12,7 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
 
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-
+    
 </head>
 
 <body>
@@ -26,23 +25,21 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
             <div class="form-group">
                 <label class="form-label">Courses you teach</label>
 
-                <input
-                    type="text"
-                    id="courseInput"
-                    class="form-input"
-                    placeholder="Type a course name..."
-                    autocomplete="off"
-                >
+                <div class="autocomplete-wrapper">
+                    <input
+                        type="text"
+                        id="courseInput"
+                        class="form-input"
+                        placeholder="Type a course name..."
+                        autocomplete="off"
+                    >
 
-                <div id="suggestions" class="suggestions"></div>
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
 
-                <!-- selected -->
-                <div id="selectedCourses" style="margin-top: 12px;"></div>
-
-                <!-- backend stores course IDs -->
+                <div id="selectedCourses"></div>
                 <input type="hidden" name="course_ids" id="courseIds">
             </div>
-
             <!-- AVAILABILITY -->
             <div class="form-group">
                 <label class="form-label">Available Time</label>
@@ -57,9 +54,9 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
 
 </div>
 
-<!--For course selection-->
+<!-- COURSE SELECTION -->
 <script>
-
+console.log("COURSE AUTOCOMPLETE SCRIPT LOADED");
 let selected = []; // {id, name}
 
 // autocomplete logic
@@ -76,13 +73,17 @@ document.getElementById("courseInput").addEventListener("input", async function 
 
     let html = "";
 
-    data.courses.forEach(c => {
-        html += `
-            <div class="suggestion-item" onclick="addCourse('${c.id}', '${c.name}')">
-                ${c.name}
-            </div>
-        `;
-    });
+    if (data.courses.length === 0) {
+    html = `<div class="suggestion-item">No results</div>`;
+    } else {
+        data.courses.forEach(c => {
+            html += `
+                <div class="suggestion-item" onclick="addCourse('${c.id}', '${c.name}')">
+                    ${c.name}
+                </div>
+            `;
+        });
+}
 
     document.getElementById("suggestions").innerHTML = html;
 });
@@ -92,6 +93,11 @@ function addCourse(id, name) {
     if (selected.find(c => c.id === id)) return;
 
     selected.push({id, name});
+
+    // fill input + clear suggestions
+    document.getElementById("courseInput").value = "";
+    document.getElementById("suggestions").innerHTML = "";
+
     updateUI();
 }
 
@@ -101,7 +107,7 @@ function removeCourse(id) {
     updateUI();
 }
 
-// update UI + hidden input
+// update UI 
 function updateUI() {
     const container = document.getElementById("selectedCourses");
     const hidden = document.getElementById("courseIds");
@@ -119,9 +125,15 @@ function updateUI() {
 
     hidden.value = selected.map(c => c.id).join(",");
 }
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".form-group")) {
+        document.getElementById("suggestions").innerHTML = "";
+    }
+});
 </script>
 
-<!--For availability selection-->
+<!-- AVAILABILITY -->
 <script>
 const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
@@ -179,7 +191,6 @@ function toggleDay(day) {
 
 document.addEventListener("DOMContentLoaded", renderAvailability);
 </script>
-
 
 </body>
 </html>

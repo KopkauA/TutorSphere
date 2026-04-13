@@ -55,6 +55,18 @@ def signup_route():
     if request.method == 'POST':
 
         role = request.form.get('role', 'student')
+        email = request.form['email']
+
+        existing_user = db.session.execute(
+            text("SELECT 1 FROM Users WHERE email = :email"),
+            {"email": email}
+        ).fetchone()
+
+        if existing_user:
+            return render_template(
+                'signup.html',
+                error="There is already an account with this email."
+            )
 
         params = {
             "email": request.form['email'],
@@ -80,6 +92,21 @@ def signup_route():
 def signup_tutor_route():
     return render_template("signup_tutor.html")
 
+@app.route("/api/courses")
+def get_courses():
+    q = request.args.get("q", "")
+
+    results = db.session.execute(
+        text("SELECT course_id, course_name FROM Courses WHERE course_name LIKE :q LIMIT 10"),
+        {"q": f"%{q}%"}
+    ).fetchall()
+
+    return {
+        "courses": [
+            {"id": r.course_id, "name": r.course_name}
+            for r in results
+        ]
+    }
 
 # SEARCH SESSIONS
 @app.route("/search", methods=["GET", "POST"])

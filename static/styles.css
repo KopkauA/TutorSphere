@@ -219,33 +219,32 @@ body {
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+
   padding: 6px 12px;
   margin: 6px 6px 0 0;
+
   border: 2px solid var(--border);
   border-radius: 9999px;
+
   background: white;
   font-size: 13px;
   color: var(--text);
 }
 
-.suggestions {
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  margin-top: 6px;
-  background: white;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-.suggestion-item {
-  padding: 10px 12px;
-  cursor: pointer;
+.chip button {
+  background: none;
+  border: none;
+  color: #888;
   font-size: 14px;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
 }
 
-.suggestion-item:hover {
-  background: var(--bg);
+.chip button:hover {
+  color: #e74c3c;
 }
 
 .availability-grid {
@@ -253,3 +252,45 @@ body {
   flex-direction: column;
   gap: 10px;
 }
+
+#courseInput {
+        position: relative;
+        z-index: 2;
+        }
+
+        .form-group {
+        position: relative;
+        }
+
+  
+        .autocomplete-wrapper {
+        position: relative;
+        width: 100%;
+        }
+
+        .suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+
+        max-height: 200px;
+        overflow-y: auto;
+
+        z-index: 9999;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+        padding: 10px;
+        cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+        background: #f2f6ff;
+        }
