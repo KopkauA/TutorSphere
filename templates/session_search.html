@@ -1,3 +1,13 @@
+<!-- 
+
+Description: Search page for finding available sessions
+Purpose:
+* Search for sessions based on course(required) and date (optional)
+* Display available sessions for booking
+* Book sessions
+    
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,17 +23,8 @@
 
     <div class="main-layout">
         <div class="main-content">
-
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                <div class="flash-messages" style="margin-bottom: 15px; padding: 10px; background-color: #ffe6e6; border: 1px solid #ff9999; border-radius: 5px;">
-                  {% for message in messages %}
-                    <p style="color: #cc0000; margin: 0; font-weight: bold;">{{ message }}</p>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            {% endwith %}
-
+            
+             <!-- MAIN -->
             <div class="card">
                 <form method="POST" action="{{ url_for('search_sessions_route') }}">
                     <label>Course</label>

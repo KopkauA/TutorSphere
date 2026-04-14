@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 from sqlalchemy import text
 from dotenv import load_dotenv
 
@@ -125,10 +125,6 @@ def search_sessions_route():
         course_id = request.form.get("course")
         selected_date = request.form.get("time")
 
-        if not course_id:
-            flash("Error: Please select a course to search for sessions.")
-            return redirect(url_for("search_sessions_route"))
-
         if not selected_date:
             selected_date = None
 
@@ -151,11 +147,10 @@ def search_sessions_route():
         for row in results:
             r = row._mapping
 
-            # Convert SQL TIME → datetime for math
             start_dt = datetime.strptime(str(r['shift_start_time']), "%H:%M:%S")
             end_dt = datetime.strptime(str(r['shift_end_time']), "%H:%M:%S")
 
-            # Generate 1-hour slots inside the shift
+            # Generate 1 hour slots inside the shift
             current = start_dt
 
             while current + timedelta(hours=1) <= end_dt:
@@ -223,10 +218,6 @@ def session_confirm_route():
         session_end_time = request.form.get("session_end_time")
         date = request.form.get("date")
 
-        if not date:
-            flash("Error: Please select a date to book this session.")
-            return redirect(url_for("search_sessions_route"))
-
         # Check if session already exists
         exists = db.session.execute(
             session_exists,
@@ -236,10 +227,6 @@ def session_confirm_route():
                 "session_start_time": session_start_time
             }
         ).fetchone()
-
-        if exists:
-            flash("Error: This session is already booked.")
-            return redirect(url_for("search_sessions_route"))
 
         # Insert session
         db.session.execute(

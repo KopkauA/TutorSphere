@@ -1,4 +1,5 @@
 [1]Coding With Moiz Khan, “How to Connect MySQL Database with Flask | Step-by-Step Guide for Beginners,” YouTube, Aug. 17, 2024. https://www.youtube.com/watch?v=kCNfWwHyTmY (accessed Apr. 03, 2026).
 ‌[2]“MySQL :: MySQL 8.4 Reference Manual :: 15.1.12 CREATE DATABASE Statement,” Mysql.com, 2025. https://dev.mysql.com/doc/refman/8.4/en/create-database.html
 [3]GeeksforGeeks, “Templating With Jinja2 in Flask,” GeeksforGeeks, Dec. 28, 2022. https://www.geeksforgeeks.org/python/templating-with-jinja2-in-flask/
-‌
+‌[4]W3Schools. (n.d.). Python Dates. Www.w3schools.com. https://www.w3schools.com/python/python_datetime.asp
+‌[5]W3Schools. (n.d.). MySQL DATE_ADD() Function. Www.w3schools.com. https://www.w3schools.com/sql/func_mysql_date_add.asp
