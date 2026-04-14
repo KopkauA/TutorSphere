@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from backend.models import db
 from backend.sql_queries import *
+from backend.date import date_to_weekday, weekday_to_date
 
 load_dotenv()
 
@@ -116,44 +117,66 @@ def search_sessions_route():
         return redirect(url_for('login_route'))
 
     sessions_list = []
-
+    course_id = None
     selected_date = None
     selected_weekday = None
 
     if request.method == "POST":
-        action = request.form.get("action")
-
-        subject_id = request.form.get("course")
+        course_id = request.form.get("course")
         selected_date = request.form.get("time")
 
+        if not course_id:
+            flash("Error: Please select a course to search for sessions.")
+            return redirect(url_for("search_sessions_route"))
+
+        if not selected_date:
+            selected_date = None
+
         if selected_date:
-            selected_weekday = datetime.strptime(
-                selected_date,
-                "%Y-%m-%d"
-            ).strftime("%A")
+            selected_weekday = date_to_weekday(selected_date)
 
-        query = search_sessions_query.text
-        params = {"selected_date": selected_date if selected_date else None}
-        conditions = []
+        params = {
+            "course_id": course_id,
+            "selected_date": selected_date,
+            "selected_weekday": selected_weekday
+        }
 
-        if subject_id:
-            conditions.append("c.course_id = :course_id")
-            params["course_id"] = subject_id
+        results = db.session.execute(
+            available_sessions_query,
+            params
+        ).fetchall()
 
-        if selected_weekday:
-            conditions.append("ta.week_day = :week_day")
-            params["week_day"] = selected_weekday
+        sessions_list = []
 
-        if conditions:
-            query += " AND " + " AND ".join(conditions)
+        for row in results:
+            r = row._mapping
 
-        sessions_list = db.session.execute(text(query), params).fetchall()
+            # Convert SQL TIME → datetime for math
+            start_dt = datetime.strptime(str(r['shift_start_time']), "%H:%M:%S")
+            end_dt = datetime.strptime(str(r['shift_end_time']), "%H:%M:%S")
 
-    # My sessions
-    my_sessions_list = db.session.execute(
-        my_sessions_query,
-        {"email": session['user_email']}
-    ).fetchall()
+            # Generate 1-hour slots inside the shift
+            current = start_dt
+
+            while current + timedelta(hours=1) <= end_dt:
+
+                slot_start = current.time()
+                slot_end = (current + timedelta(hours=1)).time()
+
+                session_dict = dict(r)
+                session_dict['session_start_time'] = slot_start.strftime("%H:%M:%S")
+                session_dict['session_end_time'] = slot_end.strftime("%H:%M:%S")
+
+                # assign date
+                if not selected_date:
+                    generated_date = weekday_to_date(str(r['week_day']))
+                    session_dict['date'] = generated_date.strftime('%Y-%m-%d')
+                else:
+                    session_dict['date'] = selected_date
+
+                sessions_list.append(session_dict)
+
+                current += timedelta(hours=1)
 
     today = datetime.now().date()
     max_date = today + timedelta(days=7)
@@ -161,7 +184,6 @@ def search_sessions_route():
     return render_template(
         "session_search.html",
         sessions=sessions_list,
-        my_sessions=my_sessions_list,
         selected_date=selected_date,
         selected_weekday=selected_weekday,
         today=today,
@@ -184,61 +206,66 @@ def my_sessions_route():
 
 @app.route("/dashboard")
 def dashboard_route():
-
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
     return render_template("dashboard.html")
 
-@app.route("/confirm_booking", methods=["GET", "POST"])
-def confirm_booking_route():
+@app.route("/session_confirm", methods=["GET", "POST"])
+def session_confirm_route():
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
     if request.method == "POST":
         availability_id = request.form.get("availability_id")
         course_id = request.form.get("course_id")
-        start_time = request.form.get("start_time")
+        session_start_time = request.form.get("session_start_time")
+        session_end_time = request.form.get("session_end_time")
         date = request.form.get("date")
 
         if not date:
             flash("Error: Please select a date to book this session.")
             return redirect(url_for("search_sessions_route"))
 
-        try:
-            time_str = str(start_time)
-            if len(time_str.split(":")) == 2:
-                time_str += ":00"
+        # Check if session already exists
+        exists = db.session.execute(
+            session_exists,
+            {
+                "availability_id": availability_id,
+                "session_date": date,
+                "session_start_time": session_start_time
+            }
+        ).fetchone()
 
-            session_datetime = datetime.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M:%S")
+        if exists:
+            flash("Error: This session is already booked.")
+            return redirect(url_for("search_sessions_route"))
 
-            exists = db.session.execute(
-                session_exists,
-                {"availability_id": availability_id, "session_datetime": session_datetime}
-            ).fetchone()
+        # Insert session
+        db.session.execute(
+            insert_session,
+            {
+                "email": session["user_email"],
+                "course_id": course_id,
+                "availability_id": availability_id,
+                "location": "Online",
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time,
+                "session_date": date
+            }
+        )
 
-            if exists:
-                flash("Error: This session is already booked.")
-                return redirect(url_for("search_sessions_route"))
+        db.session.commit()
+        return redirect(url_for("session_confirm_route"))
 
-            db.session.execute(
-                insert_session,
-                {
-                    "email": session["user_email"],
-                    "course_id": course_id,
-                    "availability_id": availability_id,
-                    "location": "Online",
-                    "session_datetime": session_datetime
-                }
-            )
-            db.session.commit()
-        except ValueError:
-            return redirect(url_for("dashboard_route"))
-            
-        return redirect(url_for("confirm_booking_route"))
+    return render_template("session_confirm.html")
 
-    return render_template("confirm_booking.html")
+@app.route("/session_cancel", methods=["GET", "POST"])
+def session_cancel_route():
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
 
+    return render_template("my_sessions.html")
 
 
 if __name__ == "__main__":

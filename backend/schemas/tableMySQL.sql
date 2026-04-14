@@ -31,10 +31,10 @@ CREATE TABLE TutorAvailability (
   availability_id INT AUTO_INCREMENT PRIMARY KEY,
   tutor_email VARCHAR(100) NOT NULL,
   week_day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
+  shift_start_time TIME NOT NULL,
+  shift_end_time TIME NOT NULL,
   
-  UNIQUE (tutor_email, week_day, start_time, end_time),
+  UNIQUE (tutor_email, week_day, shift_start_time, shift_end_time),
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
 ) ENGINE=InnoDB;
 
@@ -44,10 +44,12 @@ CREATE TABLE TutorSession (
   course_id VARCHAR(20) NOT NULL,
   availability_id INT NOT NULL,
   session_location VARCHAR(100) NOT NULL,
-  session_datetime DATETIME NOT NULL,
+  session_start_time TIME NOT NULL,
+  session_end_time TIME NOT NULL,
+  session_date DATE NOT NULL,
   session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
 
-  UNIQUE (availability_id, session_datetime),
+  UNIQUE (availability_id, session_date, session_start_time),
 
   FOREIGN KEY (student_email) REFERENCES Users(email),
   FOREIGN KEY (course_id) REFERENCES Courses(course_id),
@@ -56,6 +58,3 @@ CREATE TABLE TutorSession (
 
 CREATE INDEX idx_tutor_availability 
 ON TutorAvailability(tutor_email, week_day);
-
-CREATE INDEX idx_session_datetime 
-ON TutorSession(session_datetime);

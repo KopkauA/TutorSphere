@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+# ---------------- USERS ----------------
 class User(db.Model):
     __tablename__ = 'Users'
 
@@ -12,6 +13,7 @@ class User(db.Model):
     role = db.Column(db.Enum('tutor', 'student'), nullable=False)
 
 
+# ---------------- COURSES ----------------
 class Course(db.Model):
     __tablename__ = 'Courses'
 
@@ -19,6 +21,7 @@ class Course(db.Model):
     course_name = db.Column(db.String(100), unique=True, nullable=False)
 
 
+# ---------------- TEACHES ----------------
 class Teaches(db.Model):
     __tablename__ = 'Teaches'
 
@@ -27,6 +30,7 @@ class Teaches(db.Model):
         db.ForeignKey('Users.email'),
         primary_key=True
     )
+
     course_id = db.Column(
         db.String(20),
         db.ForeignKey('Courses.course_id'),
@@ -34,6 +38,7 @@ class Teaches(db.Model):
     )
 
 
+# ---------------- AVAILABILITY ----------------
 class TutorAvailability(db.Model):
     __tablename__ = 'TutorAvailability'
 
@@ -53,17 +58,21 @@ class TutorAvailability(db.Model):
         nullable=False
     )
 
-    start_time = db.Column(db.Time, nullable=False)
-    end_time = db.Column(db.Time, nullable=False)
+    shift_start_time = db.Column(db.Time, nullable=False)
+    shift_end_time = db.Column(db.Time, nullable=False)
 
     __table_args__ = (
         db.UniqueConstraint(
-            'tutor_email', 'week_day', 'start_time', 'end_time',
+            'tutor_email',
+            'week_day',
+            'shift_start_time',
+            'shift_end_time',
             name='unique_availability'
         ),
     )
 
 
+# ---------------- SESSIONS ----------------
 class TutorSession(db.Model):
     __tablename__ = 'TutorSession'
 
@@ -89,7 +98,9 @@ class TutorSession(db.Model):
 
     session_location = db.Column(db.String(100), nullable=False)
 
-    session_datetime = db.Column(db.DateTime, nullable=False)
+    session_date = db.Column(db.Date, nullable=False)
+    session_start_time = db.Column(db.Time, nullable=False)
+    session_end_time = db.Column(db.Time, nullable=False)
 
     session_status = db.Column(
         db.Enum('scheduled', 'completed', 'canceled'),
@@ -98,7 +109,9 @@ class TutorSession(db.Model):
 
     __table_args__ = (
         db.UniqueConstraint(
-            'availability_id', 'session_datetime',
+            'availability_id',
+            'session_date',
+            'session_start_time',
             name='unique_session_slot'
         ),
     )
