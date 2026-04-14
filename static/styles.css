@@ -24,11 +24,17 @@
 
 body {
   background: linear-gradient(135deg, #f4f6f8, #e9eef5);
-  display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   color: var(--text);
+}
+
+.center-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .container {
@@ -52,7 +58,7 @@ h2 {
 --------------------- */
 .content-wrapper {
   position: relative;
-  max-width: 1200px;
+  max-width: 2000px;
   margin: 0 auto;
   padding: 48px 24px;
 }
@@ -94,6 +100,13 @@ h2 {
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 32px;
+}
+
+.tutor-card {
+  width: 100%;
+  max-width: 1600px;
+  background: white;
+  padding: 48px;
 }
 
 /* ---------------------
@@ -318,7 +331,14 @@ a:hover {
 .time-block {
   display: none;
   margin-top: 10px;
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
+  width: 100%;
+}
+
+.time-block.active {
+  display: flex;
 }
 
 .chip {
