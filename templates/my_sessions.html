@@ -32,6 +32,7 @@ Purpose:
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Tutor</th>
+                    <th>Location</th>
                     <th>Status</th>
                     <th>Cancel</th>
                 </tr>
@@ -45,12 +46,15 @@ Purpose:
                     <td>{{ s.session_start_time }}</td>
                     <td>{{ s.session_end_time }}</td>
                     <td>{{ s.fname }} {{ s.lname }}</td>
+                    <td>{{ s.session_location }}</td>
                     <td>{{ s.session_status }}</td>
                     <td>
-                        <form method="POST" action="{{ url_for('session_cancel_route') }}">
-                            <input type="hidden" name="booking_id" value="{{ s.booking_id }}">
-                            <button type="submit" class="button">Cancel</button>
-                        </form>
+                        {% if s.session_status != 'Cancelled' %}
+                            <form method="POST" action="{{ url_for('session_cancel_route') }}">
+                                <input type="hidden" name="session_id" value="{{ s.session_id}}">
+                                <button type="submit" class="button">Cancel</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -11,7 +11,7 @@ CREATE TABLE Users (
   fname VARCHAR(100) NOT NULL,
   lname VARCHAR(100) NOT NULL,
   password VARCHAR(100) NOT NULL,
-  role ENUM('tutor', 'student') NOT NULL
+  is_tutor TINYINT(1) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE Courses (

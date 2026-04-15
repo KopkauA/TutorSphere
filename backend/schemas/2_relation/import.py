@@ -19,7 +19,7 @@ def import_users(file_path):
         reader = csv.reader(f)
         next(reader)
 
-        for email, fname, lname, password, role in reader:
+        for email, fname, lname, password, is_tutor in reader:
             exists = db.session.execute(
                 text("SELECT 1 FROM Users WHERE email=:email"),
                 {"email": email}
@@ -29,14 +29,14 @@ def import_users(file_path):
                 continue
 
             db.session.execute(text("""
-                INSERT INTO Users (email, fname, lname, password, role)
-                VALUES (:email, :fname, :lname, :password, :role)
+                INSERT INTO Users (email, fname, lname, password, is_tutor)
+                VALUES (:email, :fname, :lname, :password, :is_tutor)
             """), {
                 "email": email,
                 "fname": fname,
                 "lname": lname,
                 "password": password,
-                "role": role
+                "is_tutor": is_tutor
             })
 
     db.session.commit()
@@ -83,7 +83,7 @@ def import_teaches(file_path):
             # Check tutor exists AND is actually a tutor
             tutor = db.session.execute(text("""
                 SELECT 1 FROM Users 
-                WHERE email = :email AND role = 'tutor'
+                WHERE email = :email AND is_tutor = 'tutor'
             """), {"email": tutor_email}).fetchone()
 
             if not tutor:
@@ -138,7 +138,7 @@ def import_tutor_availability(file_path):
             
             # Verify tutor exists
             tutor = db.session.execute(
-                text("SELECT 1 FROM Users WHERE email = :email AND role = 'tutor'"),
+                text("SELECT 1 FROM Users WHERE email = :email AND is_tutor = 'tutor'"),
                 {"email": tutor_email}
             ).fetchone()
             if not tutor:

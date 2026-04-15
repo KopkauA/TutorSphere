@@ -19,7 +19,7 @@ def import_users(file_path):
     with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            email, fname, lname, password, role = row
+            email, fname, lname, password, is_tutor = row
             exists = db.session.execute(
                 text("SELECT 1 FROM Users WHERE email = :email"),
                 {"email": email}
@@ -28,10 +28,10 @@ def import_users(file_path):
                 continue
             db.session.execute(
                 text("""
-                    INSERT INTO Users (email, fname, lname, password, role)
-                    VALUES (:email, :fname, :lname, :password, :role)
+                    INSERT INTO Users (email, fname, lname, password, is_tutor)
+                    VALUES (:email, :fname, :lname, :password, :is_tutor)
                 """),
-                {"email": email, "fname": fname, "lname": lname, "password": password, "role": role}
+                {"email": email, "fname": fname, "lname": lname, "password": password, "is_tutor": is_tutor}
             )
     db.session.commit()
     print("Users imported.")

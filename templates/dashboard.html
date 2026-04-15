@@ -25,6 +25,8 @@ Purpose:
         <!-- MAIN -->
         <div class="main-content">
             <div class="card">
+                <h2>Name: {{ user.fname }} {{ user.lname }}</h2>
+                <p>Role: {{ role }}</p>
                 <ul>
                     <li><a href="{{ url_for('search_sessions_route') }}">Schedule a Session</a></li>
                     <li><a href="{{ url_for('my_sessions_route') }}">View Your Sessions</a></li>

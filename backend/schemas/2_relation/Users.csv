@@ -1,4 +1,4 @@
-email,fname,lname,password,role
+email,fname,lname,password,is_tutor
 alice@example.com,Alice,Smith,pass123,tutor
 bob@example.com,Bob,Johnson,pass123,student
 carol@example.com,Carol,Williams,pass123,tutor

@@ -3,3 +3,6 @@
 [3]GeeksforGeeks, “Templating With Jinja2 in Flask,” GeeksforGeeks, Dec. 28, 2022. https://www.geeksforgeeks.org/python/templating-with-jinja2-in-flask/
 ‌[4]W3Schools. (n.d.). Python Dates. Www.w3schools.com. https://www.w3schools.com/python/python_datetime.asp
 ‌[5]W3Schools. (n.d.). MySQL DATE_ADD() Function. Www.w3schools.com. https://www.w3schools.com/sql/func_mysql_date_add.asp
+[6]AB, D. S. (2024, October 17). DbVisualizer. DbVisualizer; DbVis Software AB. https://www.dbvis.com/thetable/a-complete-guide-to-the-mysql-boolean-type/
+
+‌

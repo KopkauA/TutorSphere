@@ -55,7 +55,7 @@ def signup_route():
 
     if request.method == 'POST':
 
-        role = request.form.get('role', 'student')
+        is_tutor = int(request.form.get('is_tutor', 0))
         email = request.form['email']
 
         existing_user = db.session.execute(
@@ -74,13 +74,13 @@ def signup_route():
             "fname": request.form['fname'],
             "lname": request.form['lname'],
             "password": request.form['password'],
-            "role": role
+            "is_tutor": is_tutor
         }
 
         db.session.execute(insert_user, params)
         db.session.commit()
 
-        if role == 'tutor':
+        if is_tutor == 1:
             session['user_email'] = params['email']
             return redirect(url_for('signup_tutor_route'))
 
@@ -218,7 +218,18 @@ def search_sessions_route():
                 else:
                     session_dict['date'] = selected_date
 
-                sessions_list.append(session_dict)
+                # Check if this specific 1-hour slot is already booked
+                is_booked = db.session.execute(
+                    session_exists,
+                    {
+                        "availability_id": r['availability_id'],
+                        "session_date": session_dict['date'],
+                        "session_start_time": session_dict['session_start_time']
+                    }
+                ).fetchone()
+
+                if not is_booked:
+                    sessions_list.append(session_dict)
 
                 current += timedelta(hours=1)
 
@@ -253,7 +264,14 @@ def dashboard_route():
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
-    return render_template("dashboard.html")
+    user = db.session.execute(
+        text("SELECT fname, lname, is_tutor FROM Users WHERE email = :email"),
+        {"email": session['user_email']}
+    ).fetchone()
+
+    role = "Tutor" if user.is_tutor == 1 else "Student"
+
+    return render_template("dashboard.html", user=user, role=role)
 
 @app.route("/session_confirm", methods=["GET", "POST"])
 def session_confirm_route():
@@ -277,19 +295,43 @@ def session_confirm_route():
             }
         ).fetchone()
 
-        # Insert session
-        db.session.execute(
-            insert_session,
+        if exists:
+            return render_template("session_confirm.html", error="This session slot is already booked.")
+
+        # Check for a canceled session to re-book
+        canceled_session = db.session.execute(
+            get_canceled_session,
             {
-                "email": session["user_email"],
-                "course_id": course_id,
                 "availability_id": availability_id,
-                "location": "Online",
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time,
-                "session_date": date
+                "session_date": date,
+                "session_start_time": session_start_time
             }
-        )
+        ).fetchone()
+
+        if canceled_session:
+            # Re-book by updating the existing canceled session
+            db.session.execute(
+                rebook_session,
+                {
+                    "session_id": canceled_session.session_id,
+                    "email": session["user_email"],
+                    "course_id": course_id
+                }
+            )
+        else:
+            # Insert a new session
+            db.session.execute(
+                insert_session,
+                {
+                    "email": session["user_email"],
+                    "course_id": course_id,
+                    "availability_id": availability_id,
+                    "location": "Online",
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time,
+                    "session_date": date
+                }
+            )
 
         db.session.commit()
         return redirect(url_for("session_confirm_route"))
@@ -301,7 +343,16 @@ def session_cancel_route():
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
-    return render_template("my_sessions.html")
+    if request.method == "POST":
+        session_id = request.form.get("session_id")
+        if session_id:
+            db.session.execute(
+                cancel_session,
+                {"session_id": session_id}
+            )
+            db.session.commit()
+
+    return redirect(url_for("my_sessions_route"))
 
 
 if __name__ == "__main__":

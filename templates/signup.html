@@ -1,7 +1,7 @@
 <!--
 
 Description: signup page for student
-Purpose: gives student the role of student 
+Purpose: gives student the is_tutor of student 
 
 -->
 
@@ -22,10 +22,10 @@ Purpose: gives student the role of student
     <form method="POST" action="{{ url_for('signup_route') }}">
       <div class="input-box">
         <i class="fa fa-user-tag"></i>
-        <select name="role" required>
+        <select name="is_tutor" required>
           <option value="">Select account type</option>
-          <option value="student">Student</option>
-          <option value="tutor">Tutor</option>
+          <option value="0">Student</option>
+          <option value="1">Tutor</option>
         </select>
       </div>
 

@@ -10,7 +10,7 @@ class User(db.Model):
     fname = db.Column(db.String(100), nullable=False)
     lname = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.Enum('tutor', 'student'), nullable=False)
+    is_tutor = db.Column(db.SmallInteger, nullable=False, default=0)
 
 
 # ---------------- COURSES ----------------

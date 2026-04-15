@@ -19,6 +19,12 @@ def import_users(file_path):
         next(reader)
 
         for email, fname, lname, password, is_tutor in reader:
+            email = email.strip()
+            fname = fname.strip()
+            lname = lname.strip()
+            password = password.strip()
+            is_tutor = int(is_tutor.strip())
+
             exists = db.session.execute(
                 text("SELECT 1 FROM Users WHERE email=:email"),
                 {"email": email}
@@ -39,7 +45,6 @@ def import_users(file_path):
             })
 
     db.session.commit()
-    print("Users imported")
 
 
 def import_courses(file_path):
@@ -48,6 +53,9 @@ def import_courses(file_path):
         next(reader)
 
         for course_id, course_name in reader:
+            course_id = course_id.strip()
+            course_name = course_name.strip()
+
             exists = db.session.execute(
                 text("SELECT 1 FROM Courses WHERE course_id=:id"),
                 {"id": course_id}
@@ -65,7 +73,6 @@ def import_courses(file_path):
             })
 
     db.session.commit()
-    print("Courses imported")
 
 
 def import_teaches(file_path):
@@ -78,22 +85,19 @@ def import_teaches(file_path):
             course_id = course_id.strip()
 
             tutor = db.session.execute(text("""
-                SELECT 1 FROM Users 
-                WHERE email = :email AND is_tutor = 'tutor'
+                SELECT 1 FROM Users
+                WHERE email=:email AND is_tutor=1
             """), {"email": tutor_email}).fetchone()
 
-            if not tutor:
-                continue
-
             course = db.session.execute(text("""
-                SELECT 1 FROM Courses WHERE course_id = :id
+                SELECT 1 FROM Courses WHERE course_id=:id
             """), {"id": course_id}).fetchone()
 
-            if not course:
+            if not tutor or not course:
                 continue
 
             exists = db.session.execute(text("""
-                SELECT 1 FROM Teaches 
+                SELECT 1 FROM Teaches
                 WHERE tutor_email=:t AND course_id=:c
             """), {"t": tutor_email, "c": course_id}).fetchone()
 
@@ -106,49 +110,48 @@ def import_teaches(file_path):
             """), {"t": tutor_email, "c": course_id})
 
     db.session.commit()
-    print("Teaches imported")
 
 
 def import_tutor_availability(file_path):
-    with open(file_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
+    with open(file_path, newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
         next(reader)
 
         for row in reader:
-            availability_id, tutor_email, week_day, start_time, end_time, tutor_location = row
+            availability_id, tutor_email, week_day, start_time, end_time, tutor_location = [x.strip() for x in row]
+
             availability_id = int(availability_id)
 
-            exists = db.session.execute(
-                text("SELECT 1 FROM TutorAvailability WHERE availability_id = :id"),
-                {"id": availability_id}
-            ).fetchone()
-
-            if exists:
-                continue
-
-            tutor = db.session.execute(
-                text("SELECT 1 FROM Users WHERE email = :email AND is_tutor = 'tutor'"),
-                {"email": tutor_email}
-            ).fetchone()
+            tutor = db.session.execute(text("""
+                SELECT 1 FROM Users
+                WHERE email=:email AND is_tutor=1
+            """), {"email": tutor_email}).fetchone()
 
             if not tutor:
                 continue
 
+            exists = db.session.execute(text("""
+                SELECT 1 FROM TutorAvailability
+                WHERE availability_id=:id
+            """), {"id": availability_id}).fetchone()
+
+            if exists:
+                continue
+
             db.session.execute(text("""
-                INSERT INTO TutorAvailability 
+                INSERT INTO TutorAvailability
                 (availability_id, tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
-                VALUES (:id, :email, :week_day, :start, :end, :location)
+                VALUES (:id, :email, :day, :start, :end, :loc)
             """), {
                 "id": availability_id,
                 "email": tutor_email,
-                "week_day": week_day,
+                "day": week_day,
                 "start": start_time,
                 "end": end_time,
-                "location": tutor_location,
+                "loc": tutor_location
             })
 
     db.session.commit()
-    print("TutorAvailability imported")
 
 
 def import_tutor_session(file_path):
@@ -157,20 +160,29 @@ def import_tutor_session(file_path):
         next(reader)
 
         for row in reader:
-            (
-                session_id,
-                student_email,
-                course_id,
-                availability_id,
-                session_location,
-                session_start_time,
-                session_end_time,
-                session_date,
-                session_status
-            ) = row
+            session_id, student_email, course_id, availability_id, session_location, session_start_time, session_end_time, session_date, session_status = [x.strip() for x in row]
+
+            session_id = int(session_id)
+            availability_id = int(availability_id)
+
+            student = db.session.execute(text("""
+                SELECT 1 FROM Users WHERE email=:email
+            """), {"email": student_email}).fetchone()
+
+            course = db.session.execute(text("""
+                SELECT 1 FROM Courses WHERE course_id=:id
+            """), {"id": course_id}).fetchone()
+
+            availability = db.session.execute(text("""
+                SELECT 1 FROM TutorAvailability WHERE availability_id=:id
+            """), {"id": availability_id}).fetchone()
+
+            if not student or not course or not availability:
+                continue
 
             exists = db.session.execute(text("""
-                SELECT 1 FROM TutorSession WHERE session_id=:id
+                SELECT 1 FROM TutorSession
+                WHERE session_id=:id
             """), {"id": session_id}).fetchone()
 
             if exists:
@@ -185,10 +197,10 @@ def import_tutor_session(file_path):
                 (:sid, :student, :course, :aid, :loc,
                  :start, :end, :date, :status)
             """), {
-                "sid": int(session_id),
+                "sid": session_id,
                 "student": student_email,
                 "course": course_id,
-                "aid": int(availability_id),
+                "aid": availability_id,
                 "loc": session_location,
                 "start": session_start_time,
                 "end": session_end_time,
@@ -197,17 +209,17 @@ def import_tutor_session(file_path):
             })
 
     db.session.commit()
-    print("Sessions imported")
 
 
 def clear_all():
+    db.session.execute(text("SET FOREIGN_KEY_CHECKS=0"))
     db.session.execute(text("DELETE FROM TutorSession"))
     db.session.execute(text("DELETE FROM TutorAvailability"))
     db.session.execute(text("DELETE FROM Teaches"))
     db.session.execute(text("DELETE FROM Courses"))
     db.session.execute(text("DELETE FROM Users"))
+    db.session.execute(text("SET FOREIGN_KEY_CHECKS=1"))
     db.session.commit()
-    print("Database cleared")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,27 @@
+availability_id,tutor_email,week_day,start_time,end_time,tutor_location
+1,alice@example.com,Monday,09:00:00,11:00:00,In-Person
+2,alice@example.com,Wednesday,14:00:00,16:00:00,Microsoft Teams
+3,carol@example.com,Tuesday,10:00:00,12:00:00,In-Person
+4,carol@example.com,Thursday,13:00:00,15:00:00,In-Person
+5,eve@example.com,Friday,09:00:00,11:00:00,In-Person
+6,eve@example.com,Monday,15:00:00,17:00:00,In-Person
+7,grace@example.com,Tuesday,09:00:00,11:00:00,Microsoft Teams
+8,grace@example.com,Thursday,14:00:00,16:00:00,Microsoft Teams
+9,isabel@example.com,Monday,10:00:00,12:00:00,Microsoft Teams
+10,isabel@example.com,Wednesday,13:00:00,15:00:00,Microsoft Teams
+11,karen@example.com,Friday,09:00:00,11:00:00,Microsoft Teams
+12,karen@example.com,Tuesday,15:00:00,17:00:00,Microsoft Teams
+13,mia@example.com,Wednesday,10:00:00,12:00:00,In-Person
+14,mia@example.com,Friday,14:00:00,16:00:00,In-Person
+15,olivia@example.com,Monday,09:00:00,11:00:00,Microsoft Teams
+16,olivia@example.com,Thursday,13:00:00,15:00:00,Microsoft Teams
+17,quinn@example.com,Tuesday,11:00:00,13:00:00,Microsoft Teams
+18,quinn@example.com,Friday,15:00:00,17:00:00,Microsoft Teams
+19,sam@example.com,Wednesday,09:00:00,11:00:00,In-Person
+20,sam@example.com,Monday,14:00:00,16:00:00,In-Person
+21,umar@example.com,Thursday,10:00:00,12:00:00,In-Person
+22,umar@example.com,Tuesday,13:00:00,15:00:00,Microsoft Teams
+23,wendy@example.com,Friday,09:00:00,11:00:00,Microsoft Teams
+24,wendy@example.com,Wednesday,15:00:00,17:00:00,In-Person
+25,yara@example.com,Monday,10:00:00,12:00:00,In-Person
+26,yara@example.com,Thursday,14:00:00,16:00:00,Microsoft Teams

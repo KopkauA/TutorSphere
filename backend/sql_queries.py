@@ -16,18 +16,6 @@ available_sessions_query = text("""
     JOIN Courses c ON t.course_id = c.course_id
     WHERE c.course_id = :course_id
       AND (:selected_weekday IS NULL OR ta.week_day = :selected_weekday)
-      AND NOT EXISTS (
-            SELECT 1
-            FROM TutorSession ts
-            WHERE ts.availability_id = ta.availability_id
-              AND ts.session_status = 'scheduled'
-              AND (
-                    (:selected_date IS NOT NULL AND ts.session_date = :selected_date)
-                    OR
-                    (:selected_date IS NULL AND ts.session_date >= CURRENT_DATE 
-                        AND ts.session_date < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY))
-              )
-      )
     ORDER BY FIELD(
         ta.week_day,
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
@@ -44,12 +32,12 @@ my_sessions_query = text("""
         u.fname,
         u.lname,
         c.course_name,
-        ts.session_status
+        ts.session_status,
+        ts.session_location
     FROM TutorSession ts
     JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
     JOIN Users u ON ta.tutor_email = u.email
-    JOIN Teaches t ON u.email = t.tutor_email
-    JOIN Courses c ON t.course_id = c.course_id
+    JOIN Courses c ON ts.course_id = c.course_id
     WHERE ts.student_email = :email
     ORDER BY ts.session_date ASC, ts.session_start_time ASC
 """)
@@ -87,8 +75,8 @@ session_exists = text("""
 """)
 
 insert_user = text("""
-    INSERT INTO Users (email, fname, lname, password, role)
-    VALUES (:email, :fname, :lname, :password, :role)
+    INSERT INTO Users (email, fname, lname, password, is_tutor)
+    VALUES (:email, :fname, :lname, :password, :is_tutor)
 """)
 
 insert_teaches = text("""
@@ -122,6 +110,23 @@ insert_session = text("""
         :session_date,
         'scheduled'
     )
+""")
+
+rebook_session = text("""
+    UPDATE TutorSession
+    SET student_email = :email,
+        course_id = :course_id,
+        session_status = 'scheduled'
+    WHERE session_id = :session_id
+""")
+
+get_canceled_session = text("""
+    SELECT session_id
+    FROM TutorSession
+    WHERE availability_id = :availability_id
+      AND session_date = :session_date
+      AND session_start_time = :session_start_time
+      AND session_status = 'canceled'
 """)
 
 cancel_session = text("""
