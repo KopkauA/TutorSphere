@@ -91,7 +91,56 @@ def signup_route():
 
 @app.route("/signup/tutor", methods=["GET", "POST"])
 def signup_tutor_route():
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
+
+    if request.method == "POST":
+
+        email = session['user_email']
+
+        # courses
+        course_ids = request.form.get("course_ids")
+
+        if course_ids:
+            for cid in course_ids.split(","):
+                db.session.execute(
+                    text("""
+                        INSERT INTO Teaches (tutor_email, course_id)
+                        VALUES (:email, :course_id)
+                    """),
+                    {"email": email, "course_id": cid}
+                )
+
+        # availability and location
+        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+        for day in days:
+            start = request.form.get(f"{day}_start")
+            end = request.form.get(f"{day}_end")
+            location = request.form.get(f"{day}_location")
+
+            if start and end and location:
+                db.session.execute(
+                    text("""
+                        INSERT INTO TutorAvailability 
+                        (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
+                        VALUES (:email, :day, :start, :end, :location)
+                    """),
+                    {
+                        "email": email,
+                        "day": day,
+                        "start": start,
+                        "end": end,
+                        "location": location
+                    }
+                )
+        #commit changes
+        db.session.commit()
+
+        return redirect(url_for("dashboard_route"))
+
     return render_template("signup_tutor.html")
+
 
 @app.route("/api/courses")
 def get_courses():

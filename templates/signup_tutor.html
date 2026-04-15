@@ -40,11 +40,15 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
                 <div id="selectedCourses"></div>
                 <input type="hidden" name="course_ids" id="courseIds">
             </div>
+
+
             <!-- AVAILABILITY -->
             <div class="form-group">
                 <label class="form-label">Available Time</label>
                 <div id="availability-container" class="availability-grid"></div>
             </div>
+
+
 
             <button type="submit" class="button">Finish Setup</button>
 
@@ -165,7 +169,7 @@ function renderAvailability() {
                 <strong>${day}</strong>
             </label>
 
-            <div id="${day}-times" class="time-block">
+            <div id="${day}-times" class="time-block" style="display:none;">
                 <select name="${day}_start" class="form-input">
                     ${generateTimes()}
                 </select>
@@ -173,6 +177,12 @@ function renderAvailability() {
                 <select name="${day}_end" class="form-input">
                     ${generateTimes()}
                 </select>
+
+                <select name="${day}_location" class="form-input">
+                    <option value="In-person">In-person (LIB206)</option>
+                    <option value="Microsoft Teams">Microsoft Teams</option>
+                </select>
+
             </div>
         </div>
     `).join("");

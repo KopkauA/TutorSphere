@@ -115,7 +115,7 @@ def import_tutor_availability(file_path):
         next(reader)
 
         for row in reader:
-            availability_id, tutor_email, week_day, start_time, end_time = row
+            availability_id, tutor_email, week_day, start_time, end_time, tutor_location = row
             availability_id = int(availability_id)
 
             exists = db.session.execute(
@@ -136,14 +136,15 @@ def import_tutor_availability(file_path):
 
             db.session.execute(text("""
                 INSERT INTO TutorAvailability 
-                (availability_id, tutor_email, week_day, shift_start_time, shift_end_time)
-                VALUES (:id, :email, :week_day, :start, :end)
+                (availability_id, tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
+                VALUES (:id, :email, :week_day, :start, :end, :location)
             """), {
                 "id": availability_id,
                 "email": tutor_email,
                 "week_day": week_day,
                 "start": start_time,
-                "end": end_time
+                "end": end_time,
+                "location": tutor_location,
             })
 
     db.session.commit()
