@@ -60,146 +60,147 @@ STEP 2 OF SIGNUP: this is where tutors will select their availability and course
 
 <!-- COURSE SELECTION -->
 <script>
-console.log("COURSE AUTOCOMPLETE SCRIPT LOADED");
-let selected = []; // {id, name}
+    console.log("COURSE AUTOCOMPLETE SCRIPT LOADED");
+    let selected = []; // {id, name}
 
-// autocomplete logic
-document.getElementById("courseInput").addEventListener("input", async function () {
-    const q = this.value;
+    // autocomplete logic
+    document.getElementById("courseInput").addEventListener("input", async function () {
+        const q = this.value;
 
-    if (q.length < 1) {
-        document.getElementById("suggestions").innerHTML = "";
-        return;
+        if (q.length < 1) {
+            document.getElementById("suggestions").innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/api/courses?q=${q}`);
+        const data = await res.json();
+
+        let html = "";
+
+        if (data.courses.length === 0) {
+        html = `<div class="suggestion-item">No results</div>`;
+        } else {
+            data.courses.forEach(c => {
+                html += `
+                    <div class="suggestion-item" onclick="addCourse('${c.id}', '${c.name}')">
+                        ${c.name}
+                    </div>
+                `;
+            });
     }
 
-    const res = await fetch(`/api/courses?q=${q}`);
-    const data = await res.json();
-
-    let html = "";
-
-    if (data.courses.length === 0) {
-    html = `<div class="suggestion-item">No results</div>`;
-    } else {
-        data.courses.forEach(c => {
-            html += `
-                <div class="suggestion-item" onclick="addCourse('${c.id}', '${c.name}')">
-                    ${c.name}
-                </div>
-            `;
-        });
-}
-
-    document.getElementById("suggestions").innerHTML = html;
-});
-
-// add course
-function addCourse(id, name) {
-    if (selected.find(c => c.id === id)) return;
-
-    selected.push({id, name});
-
-    // fill input + clear suggestions
-    document.getElementById("courseInput").value = "";
-    document.getElementById("suggestions").innerHTML = "";
-
-    updateUI();
-}
-
-// remove course
-function removeCourse(id) {
-    selected = selected.filter(c => c.id !== id);
-    updateUI();
-}
-
-// update UI 
-function updateUI() {
-    const container = document.getElementById("selectedCourses");
-    const hidden = document.getElementById("courseIds");
-
-    container.innerHTML = "";
-
-    selected.forEach(c => {
-        container.innerHTML += `
-            <span class="chip">
-                ${c.name}
-                <button type="button" onclick="removeCourse('${c.id}')">×</button>
-            </span>
-        `;
+        document.getElementById("suggestions").innerHTML = html;
     });
 
-    hidden.value = selected.map(c => c.id).join(",");
-}
+    // add course
+    function addCourse(id, name) {
+        if (selected.find(c => c.id === id)) return;
 
-document.addEventListener("click", function(e) {
-    if (!e.target.closest(".form-group")) {
+        selected.push({id, name});
+
+        // fill input + clear suggestions
+        document.getElementById("courseInput").value = "";
         document.getElementById("suggestions").innerHTML = "";
+
+        updateUI();
     }
-});
+
+    // remove course
+    function removeCourse(id) {
+        selected = selected.filter(c => c.id !== id);
+        updateUI();
+    }
+
+    // update UI 
+    function updateUI() {
+        const container = document.getElementById("selectedCourses");
+        const hidden = document.getElementById("courseIds");
+
+        container.innerHTML = "";
+
+        selected.forEach(c => {
+            container.innerHTML += `
+                <span class="chip">
+                    ${c.name}
+                    <button type="button" onclick="removeCourse('${c.id}')">×</button>
+                </span>
+            `;
+        });
+
+        hidden.value = selected.map(c => c.id).join(",");
+    }
+
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".form-group")) {
+            document.getElementById("suggestions").innerHTML = "";
+        }
+    });
 </script>
 
 <!-- AVAILABILITY -->
 <script>
-const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-function formatTime(hour, minute) {
-    let period = hour >= 12 ? "PM" : "AM";
-    let displayHour = hour % 12 || 12;
-    let min = minute === 0 ? "00" : "30";
-    return `${displayHour}:${min} ${period}`;
-}
-
-function generateTimes() {
-    let options = `<option value="" selected disabled>Select time</option>`;
-
-    for (let h = 7; h <= 21; h++) {
-        options += `<option value="${String(h).padStart(2,'0')}:00">${formatTime(h,0)}</option>`;
-        options += `<option value="${String(h).padStart(2,'0')}:30">${formatTime(h,30)}</option>`;
+    function formatTime(hour, minute) {
+        let period = hour >= 12 ? "PM" : "AM";
+        let displayHour = hour % 12 || 12;
+        return `${displayHour}:00 ${period}`;
     }
 
-    return options;
-}
+    function generateTimes(label) {
+        let options = `<option value="" selected disabled>${label}</option>`;
 
-function renderAvailability() {
-    const container = document.getElementById("availability-container");
+        for (let h = 7; h <= 21; h++) {
+            options += `<option value="${String(h).padStart(2,'0')}:00">${formatTime(h,0)}</option>`;
+        }
 
-    container.innerHTML = days.map(day => `
-        <div class="day-block">
-            <label>
-                <input type="checkbox" onchange="toggleDay('${day}')">
-                <strong>${day}</strong>
-            </label>
+        return options;
+    }
 
-            <div id="${day}-times" class="time-block" style="display:none;">
-                <select name="${day}_start" class="form-input">
-                    ${generateTimes()}
-                </select>
+    function renderAvailability() {
+        const container = document.getElementById("availability-container");
 
-                <select name="${day}_end" class="form-input">
-                    ${generateTimes()}
-                </select>
+        container.innerHTML = days.map(day => `
+            <div class="day-block">
+                <label>
+                    <input type="checkbox" onchange="toggleDay('${day}')">
+                    <strong>${day}</strong>
+                </label>
 
-                <select name="${day}_location" class="form-input">
-                    <option value="In-person">In-person (LIB206)</option>
-                    <option value="Microsoft Teams">Microsoft Teams</option>
-                </select>
+                <div id="${day}-times" class="time-block time-row" style="display:none;">
+                    <div class="time-row">
+                        <select name="${day}_start" class="form-input">
+                            ${generateTimes("Select start time")}
+                        </select>
 
+                        <select name="${day}_end" class="form-input">
+                            ${generateTimes("Select end time")}
+                        </select>
+
+                        <select name="${day}_location" class="form-input">
+                            <option value="" selected disabled>Select location</option>
+                            <option value="In-person">In-person (LIB206)</option>
+                            <option value="Microsoft Teams">Microsoft Teams</option>
+                        </select>
+                    </div>
+
+                </div>
             </div>
-        </div>
-    `).join("");
-}
-
-function toggleDay(day) {
-    const div = document.getElementById(`${day}-times`);
-    const isOpen = div.style.display === "block";
-
-    div.style.display = isOpen ? "none" : "block";
-
-    if (isOpen) {
-        div.querySelectorAll("select").forEach(s => s.value = "");
+        `).join("");
     }
-}
 
-document.addEventListener("DOMContentLoaded", renderAvailability);
+    function toggleDay(day) {
+        const div = document.getElementById(`${day}-times`);
+        const isOpen = div.style.display === "block";
+
+        div.style.display = isOpen ? "none" : "block";
+
+        if (isOpen) {
+            div.querySelectorAll("select").forEach(s => s.value = "");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", renderAvailability);
 </script>
 
 </body>
