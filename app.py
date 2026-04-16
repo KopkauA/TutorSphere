@@ -354,6 +354,150 @@ def session_cancel_route():
 
     return redirect(url_for("my_sessions_route"))
 
+@app.route("/myprofile", methods=["GET", "POST"])
+def view_my_profile_route():
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
+
+    email = session['user_email']
+
+    user = db.session.execute(
+        text("SELECT fname, lname, email, is_tutor FROM Users WHERE email = :email"),
+        {"email": email}
+    ).fetchone()
+
+    if request.method == "POST" and user.is_tutor == 1:
+
+        course_ids = request.form.get("course_ids", "")
+        course_list = [c for c in course_ids.split(",") if c]
+
+        #delete old courses
+        db.session.execute(
+            text("DELETE FROM Teaches WHERE tutor_email = :email"),
+            {"email": user.email}
+        )
+
+        #insert new courses
+        for cid in course_list:
+            db.session.execute(
+                text("""
+                    INSERT INTO Teaches (tutor_email, course_id)
+                    VALUES (:email, :cid)
+                """),
+                {"email": user.email, "cid": cid}
+            )
+
+        #delete old availability
+        db.session.execute(
+            text("DELETE FROM TutorAvailability WHERE tutor_email = :email"),
+            {"email": user.email}
+        )
+
+        #insert new availability (looping through days)
+        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+        for day in days:
+            start = request.form.get(f"{day}_start")
+            end = request.form.get(f"{day}_end")
+            location = request.form.get(f"{day}_location")
+
+            if start and end and location:
+                db.session.execute(
+                    text("""
+                        INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
+                        VALUES (:email, :day, :start, :end, :loc)
+                    """),
+                    {
+                        "email": user.email,
+                        "day": day,
+                        "start": start,
+                        "end": end,
+                        "loc": location
+                    }
+                )
+
+        db.session.commit()
+
+        return redirect(url_for("view_my_profile_route"))
+
+    courses = []
+    availability = []
+
+    # if they are a tutor
+    if user.is_tutor == 1:
+        courses = db.session.execute(
+            text("""
+                SELECT c.course_id, c.course_name
+                FROM Teaches t
+                JOIN Courses c ON t.course_id = c.course_id
+                WHERE t.tutor_email = :email
+            """),
+            {"email": user.email}
+        ).fetchall()
+
+        availability = db.session.execute(
+            text("""
+                SELECT week_day, shift_start_time, shift_end_time, tutor_location
+                FROM TutorAvailability
+                WHERE tutor_email = :email
+            """),
+            {"email": user.email}
+        ).fetchall()
+
+    return render_template(
+        "myprofile.html",
+        user=user,
+        courses=courses,
+        availability=availability
+    )
+
+@app.route("/logout")
+def logout_route():
+    session.clear()
+    return redirect(url_for("login_route"))
+
+
+# get past data for profile 
+@app.route("/api/profile")
+def api_profile():
+    if 'user_email' not in session:
+        return {"error": "not logged in"}, 401
+
+    email = session['user_email']
+
+    courses = db.session.execute(
+        text("""
+            SELECT c.course_id, c.course_name
+            FROM Teaches t
+            JOIN Courses c ON t.course_id = c.course_id
+            WHERE t.tutor_email = :email
+        """),
+        {"email": email}
+    ).fetchall()
+
+    availability_raw = db.session.execute(
+        text("""
+            SELECT week_day, shift_start_time, shift_end_time, tutor_location
+            FROM TutorAvailability
+            WHERE tutor_email = :email
+        """),
+        {"email": email}
+    ).fetchall()
+
+    # convert time to a string 
+    availability = []
+    for a in availability_raw:
+        row = dict(a._mapping)
+
+        row["shift_start_time"] = str(row["shift_start_time"])
+        row["shift_end_time"] = str(row["shift_end_time"])
+
+        availability.append(row)
+
+    return {
+        "courses": [dict(c._mapping) for c in courses],
+        "availability": availability
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)
