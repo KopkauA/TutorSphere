@@ -441,7 +441,7 @@ a:hover {
   My profile page 
 -----------------*/
 
-body {
+body.profile-page {
     margin: 0;
     background: white;
     font-family: Arial, sans-serif;
