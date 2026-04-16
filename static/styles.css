@@ -442,15 +442,18 @@ a:hover {
 -----------------*/
 
 body.profile-page {
-    margin: 0;
+    margin: center;
     background: white;
     font-family: Arial, sans-serif;
 }
 
 /* page container */
 .profile-page {
+
     max-width: 900px;
     margin: 40px auto;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* top header row */
@@ -470,13 +473,25 @@ body.profile-page {
 /* logout button look */
 .logout-link {
     text-decoration: none;
+    color: white;
+    font-size: 14px;
+    padding: 8px 14px;
+    border: 1px solid #f4f6f8;
+    background-color: #4a90e2;
+    border-radius: 8px;
+    align-items: right;
+}
+
+/* back to dashboard button look */
+.dash-link {
+    text-decoration: none;
     color: #333;
     font-size: 14px;
     padding: 8px 14px;
     border: 1px solid #f4f6f8;
+    background-color: #f4f6f8;
     border-radius: 8px;
 }
-
 /* section title smaller than main title */
 .section-title {
     font-size: 20px;
@@ -517,4 +532,10 @@ button.button {
 
 .day-block:last-child {
     border-bottom: none;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }

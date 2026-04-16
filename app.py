@@ -80,11 +80,12 @@ def signup_route():
         db.session.execute(insert_user, params)
         db.session.commit()
 
+        session['user_email'] = params['email']
+
         if is_tutor == 1:
-            session['user_email'] = params['email']
             return redirect(url_for('signup_tutor_route'))
 
-        return redirect(url_for('login_route'))
+        return redirect(url_for('dashboard_route'))
 
     return render_template('signup.html')
 

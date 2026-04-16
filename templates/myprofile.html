@@ -6,16 +6,17 @@
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 
-<body class="profile-page">
+<body class="profile-page"> 
 <div class="profile-page">
+    <div class="profile-header">
+        <a href="{{ url_for('dashboard_route') }}" class="dash-link">🠠 Back to Dashboard</a>
+    </div>
 
     <!-- TOP BAR -->
     <div class="profile-header">
         <h1 class="profile-title">My Profile</h1>
-
-        <a href="{{ url_for('logout_route') }}" class="logout-link">
-            Logout
-        </a>
+        <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
+    
     </div>
 
     <!-- USER INFO -->
