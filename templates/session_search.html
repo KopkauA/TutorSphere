@@ -14,6 +14,7 @@ Purpose:
     <meta charset="UTF-8">
     <title>Schedule a Session</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 
 <body class="body">
@@ -28,7 +29,16 @@ Purpose:
             <div class="card">
                 <form method="POST" action="{{ url_for('search_sessions_route') }}">
                     <label>Course</label>
-                    <input type="text" name="course" class="form-input" required>
+                    <div class="autocomplete-wrapper">
+                        <input type="text"
+                               id="courseInput"
+                               class="form-input"
+                               placeholder="Type a course name..."
+                               value="{{ course_name or '' }}"
+                               autocomplete="off" required>
+                        <div id="suggestions" class="suggestions"></div>
+                    </div>
+                    <input type="hidden" name="course" id="courseId" value="{{ course_id or '' }}">
 
                     <label>Date</label>
                     <input type="date"
@@ -54,6 +64,7 @@ Purpose:
                                 <th>Date</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>
+                                <th>Location</th>
                                 <th>Book</th>
                             </tr>
                         </thead>
@@ -65,12 +76,14 @@ Purpose:
                                 <td>{{ s.date }}</td>
                                 <td>{{ s.session_start_time }}</td>
                                 <td>{{ s.session_end_time }}</td>
+                                <td>{{ s.tutor_location }}</td>
                                 <td>
                                     <form method="POST" action="{{ url_for('session_confirm_route') }}">
                                         <input type="hidden" name="availability_id" value="{{ s.availability_id }}">
                                         <input type="hidden" name="course_id" value="{{ s.course_id }}">
                                         <input type="hidden" name="session_start_time" value="{{ s.session_start_time }}">
                                         <input type="hidden" name="session_end_time" value="{{ s.session_end_time }}">
+                                        <input type="hidden" name="session_location" value="{{ s.tutor_location }}">
                                         <input type="hidden" name="date" value="{{ s.date }}">
                                         <button type="submit" class="button">Book</button>
                                     </form>
@@ -89,6 +102,58 @@ Purpose:
         </div>
     </div>
 </div>
+
+<!-- COURSE AUTOCOMPLETE -->
+<script>
+    const courseInput = document.getElementById("courseInput");
+    const courseIdInput = document.getElementById("courseId");
+    const suggestionsBox = document.getElementById("suggestions");
+
+    courseInput.addEventListener("input", async function () {
+        const q = this.value;
+
+        if (q.length < 1) {
+            suggestionsBox.innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/api/courses?q=${q}`);
+        const data = await res.json();
+
+        let html = "";
+
+        if (data.courses.length === 0) {
+            html = `<div class="suggestion-item">No results</div>`;
+        } else {
+            data.courses.forEach(c => {
+                html += `
+                    <div class="suggestion-item" onclick="selectCourse('${c.id}', '${c.name}')">
+                        ${c.name}
+                    </div>
+                `;
+            });
+        }
+
+        suggestionsBox.innerHTML = html;
+    });
+
+    function selectCourse(id, name) {
+        courseInput.value = name;
+        courseIdInput.value = id;
+        suggestionsBox.innerHTML = "";
+    }
+
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".autocomplete-wrapper")) {
+            suggestionsBox.innerHTML = "";
+        }
+    });
+
+    // Clear hidden input if user types something new without selecting
+    courseInput.addEventListener("keydown", function() {
+        courseIdInput.value = "";
+    });
+</script>
 
 </body>
 </html>

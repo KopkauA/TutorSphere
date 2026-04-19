@@ -58,8 +58,10 @@ class TutorAvailability(db.Model):
         nullable=False
     )
 
+    tutor_location = db.Column(db.String(100))
     shift_start_time = db.Column(db.Time, nullable=False)
     shift_end_time = db.Column(db.Time, nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
     __table_args__ = (
         db.UniqueConstraint(

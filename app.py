@@ -59,7 +59,7 @@ def signup_route():
         email = request.form['email']
 
         existing_user = db.session.execute(
-            text("SELECT 1 FROM Users WHERE email = :email"),
+            user_exists,
             {"email": email}
         ).fetchone()
 
@@ -105,11 +105,8 @@ def signup_tutor_route():
         if course_ids:
             for cid in course_ids.split(","):
                 db.session.execute(
-                    text("""
-                        INSERT INTO Teaches (tutor_email, course_id)
-                        VALUES (:email, :course_id)
-                    """),
-                    {"email": email, "course_id": cid}
+                    insert_teaches,
+                    {"tutor_email": email, "course_id": cid}
                 )
 
         # availability and location
@@ -122,17 +119,13 @@ def signup_tutor_route():
 
             if start and end and location:
                 db.session.execute(
-                    text("""
-                        INSERT INTO TutorAvailability 
-                        (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
-                        VALUES (:email, :day, :start, :end, :location)
-                    """),
+                    insert_availability,
                     {
-                        "email": email,
-                        "day": day,
-                        "start": start,
-                        "end": end,
-                        "location": location
+                        "tutor_email": email,
+                        "week_day": day,
+                        "shift_start_time": start,
+                        "shift_end_time": end,
+                        "tutor_location": location
                     }
                 )
         #commit changes
@@ -144,11 +137,11 @@ def signup_tutor_route():
 
 
 @app.route("/api/courses")
-def get_courses():
+def get_courses_route():
     q = request.args.get("q", "")
 
     results = db.session.execute(
-        text("SELECT course_id, course_name FROM Courses WHERE course_name LIKE :q LIMIT 10"),
+        get_courses,
         {"q": f"%{q}%"}
     ).fetchall()
 
@@ -168,12 +161,21 @@ def search_sessions_route():
 
     sessions_list = []
     course_id = None
+    course_name = None
     selected_date = None
     selected_weekday = None
 
     if request.method == "POST":
         course_id = request.form.get("course")
         selected_date = request.form.get("time")
+
+        if course_id:
+            c = db.session.execute(
+                find_course,
+                {"course_id": course_id}
+            ).fetchone()
+            if c:
+                course_name = c.course_name
 
         if not selected_date:
             selected_date = None
@@ -240,6 +242,8 @@ def search_sessions_route():
     return render_template(
         "session_search.html",
         sessions=sessions_list,
+        course_id=course_id,
+        course_name=course_name,
         selected_date=selected_date,
         selected_weekday=selected_weekday,
         today=today,
@@ -253,12 +257,28 @@ def my_sessions_route():
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
+    email = session['user_email']
+
     sessions = db.session.execute(
-        my_sessions_query,
-        {"email": session['user_email']}
+        student_sessions_query,
+        {"email": email}
     ).fetchall()
 
-    return render_template("my_sessions.html", my_sessions=sessions)
+    user = db.session.execute(
+        get_role,
+        {"email": email}
+    ).fetchone()
+
+    is_tutor = user.is_tutor if user else 0
+    tutor_sessions = []
+
+    if is_tutor == 1:
+        tutor_sessions = db.session.execute(
+            tutor_sessions_query,
+            {"email": email}
+        ).fetchall()
+
+    return render_template("my_sessions.html", my_sessions=sessions, is_tutor=is_tutor, tutor_sessions=tutor_sessions)
 
 @app.route("/dashboard")
 def dashboard_route():
@@ -284,6 +304,7 @@ def session_confirm_route():
         course_id = request.form.get("course_id")
         session_start_time = request.form.get("session_start_time")
         session_end_time = request.form.get("session_end_time")
+        session_location = request.form.get("session_location")
         date = request.form.get("date")
 
         # Check if session already exists
@@ -316,7 +337,11 @@ def session_confirm_route():
                 {
                     "session_id": canceled_session.session_id,
                     "email": session["user_email"],
-                    "course_id": course_id
+                    "course_id": course_id,
+                    "session_date": date,
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time,
+                    "location": session_location
                 }
             )
         else:
@@ -327,7 +352,7 @@ def session_confirm_route():
                     "email": session["user_email"],
                     "course_id": course_id,
                     "availability_id": availability_id,
-                    "location": "Online",
+                    "location": session_location,
                     "session_start_time": session_start_time,
                     "session_end_time": session_end_time,
                     "session_date": date
@@ -362,39 +387,32 @@ def view_my_profile_route():
 
     email = session['user_email']
 
+    # Fetch user info
     user = db.session.execute(
         text("SELECT fname, lname, email, is_tutor FROM Users WHERE email = :email"),
         {"email": email}
     ).fetchone()
 
+    # ---------- UPDATE TUTOR PROFILE ----------
     if request.method == "POST" and user.is_tutor == 1:
 
+        # ---------------- COURSES ----------------
         course_ids = request.form.get("course_ids", "")
         course_list = [c for c in course_ids.split(",") if c]
 
-        #delete old courses
-        db.session.execute(
-            text("DELETE FROM Teaches WHERE tutor_email = :email"),
-            {"email": user.email}
-        )
+        # Delete old courses
+        db.session.execute(delete_teaches, {"email": email})
 
-        #insert new courses
+        # Insert new courses
         for cid in course_list:
             db.session.execute(
-                text("""
-                    INSERT INTO Teaches (tutor_email, course_id)
-                    VALUES (:email, :cid)
-                """),
-                {"email": user.email, "cid": cid}
+                insert_teaches,
+                {"tutor_email": email, "course_id": cid}
             )
 
-        #delete old availability
-        db.session.execute(
-            text("DELETE FROM TutorAvailability WHERE tutor_email = :email"),
-            {"email": user.email}
-        )
+        # Delete availability that is not tied to sessions
+        db.session.execute(delete_availability, {"email": email})
 
-        #insert new availability (looping through days)
         days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
         for day in days:
@@ -402,46 +420,33 @@ def view_my_profile_route():
             end = request.form.get(f"{day}_end")
             location = request.form.get(f"{day}_location")
 
+            # Only insert if all fields exist
             if start and end and location:
                 db.session.execute(
-                    text("""
-                        INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
-                        VALUES (:email, :day, :start, :end, :loc)
-                    """),
+                    insert_availability,
                     {
-                        "email": user.email,
-                        "day": day,
-                        "start": start,
-                        "end": end,
-                        "loc": location
+                        "tutor_email": email,
+                        "week_day": day,
+                        "shift_start_time": start,
+                        "shift_end_time": end,
+                        "tutor_location": location
                     }
                 )
 
         db.session.commit()
-
         return redirect(url_for("view_my_profile_route"))
 
     courses = []
     availability = []
 
-    # if they are a tutor
     if user.is_tutor == 1:
         courses = db.session.execute(
-            text("""
-                SELECT c.course_id, c.course_name
-                FROM Teaches t
-                JOIN Courses c ON t.course_id = c.course_id
-                WHERE t.tutor_email = :email
-            """),
+            get_tutor_courses,
             {"email": user.email}
         ).fetchall()
 
         availability = db.session.execute(
-            text("""
-                SELECT week_day, shift_start_time, shift_end_time, tutor_location
-                FROM TutorAvailability
-                WHERE tutor_email = :email
-            """),
+            get_tutor_availability,
             {"email": user.email}
         ).fetchall()
 
@@ -451,6 +456,7 @@ def view_my_profile_route():
         courses=courses,
         availability=availability
     )
+
 
 @app.route("/logout")
 def logout_route():
@@ -467,21 +473,12 @@ def api_profile():
     email = session['user_email']
 
     courses = db.session.execute(
-        text("""
-            SELECT c.course_id, c.course_name
-            FROM Teaches t
-            JOIN Courses c ON t.course_id = c.course_id
-            WHERE t.tutor_email = :email
-        """),
+        get_tutor_courses,
         {"email": email}
     ).fetchall()
 
     availability_raw = db.session.execute(
-        text("""
-            SELECT week_day, shift_start_time, shift_end_time, tutor_location
-            FROM TutorAvailability
-            WHERE tutor_email = :email
-        """),
+        get_tutor_availability,
         {"email": email}
     ).fetchall()
 

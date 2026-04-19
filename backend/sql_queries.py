@@ -6,6 +6,7 @@ available_sessions_query = text("""
         ta.week_day,
         ta.shift_start_time,
         ta.shift_end_time,
+        ta.tutor_location,
         u.fname,
         u.lname,
         c.course_id,
@@ -23,7 +24,7 @@ available_sessions_query = text("""
     ta.shift_start_time
 """)
 
-my_sessions_query = text("""
+student_sessions_query = text("""
     SELECT 
         ts.session_id,
         ts.session_date,
@@ -42,6 +43,24 @@ my_sessions_query = text("""
     ORDER BY ts.session_date ASC, ts.session_start_time ASC
 """)
 
+tutor_sessions_query = text("""
+    SELECT 
+        ts.session_id,
+        c.course_name,
+        ts.session_date,
+        ts.session_start_time,
+        ts.session_end_time,
+        u.fname,
+        u.lname,
+        ts.session_location,
+        ts.session_status
+    FROM TutorSession ts
+    JOIN Courses c ON ts.course_id = c.course_id
+    JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
+    JOIN Users u ON ts.student_email = u.email
+    WHERE ta.tutor_email = :email
+""")
+
 scheduled_sessions = text("""
     SELECT COUNT(ts.session_id) as upcoming_count
     FROM TutorSession ts
@@ -57,12 +76,23 @@ get_user = text("""
     WHERE email = :email AND password = :password
 """)
 
+find_course = text("""
+    SELECT course_name
+    FROM Courses
+    WHERE course_id = :course_id
+""")
+
+
 get_courses = text("""
     SELECT course_id, course_name
     FROM Courses
     WHERE course_name LIKE :q
     ORDER BY course_name
     LIMIT 10
+""")
+
+get_role = text("""
+    SELECT is_tutor FROM Users WHERE email = :email
 """)
 
 session_exists = text("""
@@ -85,9 +115,9 @@ insert_teaches = text("""
 """)
 
 insert_availability = text("""
-    INSERT INTO TutorAvailability (tutor_email, week_day, session_start_time, session_end_time)
-    VALUES (:tutor_email, :week_day, :session_start_time, :session_end_time)
-""")
+    INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
+    VALUES (:tutor_email, :week_day, :shift_start_time, :shift_end_time, :tutor_location)"""
+)
 
 insert_session = text("""
     INSERT INTO TutorSession (
@@ -112,11 +142,22 @@ insert_session = text("""
     )
 """)
 
+user_exists = text("""
+    SELECT 1 
+    FROM Users 
+    WHERE email = :email
+""")
+
+
 rebook_session = text("""
     UPDATE TutorSession
     SET student_email = :email,
         course_id = :course_id,
-        session_status = 'scheduled'
+        session_status = 'scheduled',
+        session_date = :session_date,
+        session_start_time = :session_start_time,
+        session_end_time = :session_end_time,
+        session_location = :location
     WHERE session_id = :session_id
 """)
 
@@ -133,4 +174,31 @@ cancel_session = text("""
     UPDATE TutorSession
     SET session_status = 'canceled'
     WHERE session_id = :session_id
+""")
+
+delete_teaches = text("""
+    DELETE FROM Teaches WHERE tutor_email = :email
+""")
+
+delete_availability = text("""
+    DELETE FROM TutorAvailability ta
+    WHERE ta.tutor_email = :email
+      AND NOT EXISTS (
+          SELECT 1
+          FROM TutorSession ts
+          WHERE ts.availability_id = ta.availability_id
+      )
+""")
+
+get_tutor_courses = text("""
+    SELECT c.course_id, c.course_name
+    FROM Teaches t
+    JOIN Courses c ON t.course_id = c.course_id
+    WHERE t.tutor_email = :email
+""")
+
+get_tutor_availability = text("""
+    SELECT week_day, shift_start_time, shift_end_time, tutor_location
+    FROM TutorAvailability
+    WHERE tutor_email = :email 
 """)
