@@ -101,7 +101,8 @@ session_exists = text("""
     FROM TutorSession
     WHERE availability_id = :availability_id
       AND session_date = :session_date
-      AND session_start_time = :session_start_time
+      AND session_start_time < :session_end_time
+      AND session_end_time > :session_start_time
       AND session_status != 'Canceled'
 """)
 
@@ -110,7 +111,8 @@ student_schedule_conflict = text("""
     FROM TutorSession 
     WHERE student_email = :email
       AND session_date = :session_date
-      AND session_start_time = :session_start_time
+      AND session_start_time < :session_end_time
+      AND session_end_time > :session_start_time
       AND session_status = 'Scheduled'
 """)
 
@@ -189,5 +191,4 @@ get_tutor_courses = text("""
 get_tutor_availability = text("""
     SELECT week_day, shift_start_time, shift_end_time, tutor_location
     FROM TutorAvailability
-    WHERE tutor_email = :email 
 """)
