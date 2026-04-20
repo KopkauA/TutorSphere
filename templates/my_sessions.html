@@ -18,6 +18,24 @@ Purpose:
 
 <body class="body">
 
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('dashboard_route') }}" class="logo">
+            <img src="{{ url_for('static', filename='Logo_textonly.png') }}" alt="Logo">
+        </a>
+    </div>
+
+    <div class="nav-right">
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard_route') }}">Home</a>
+            <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
+            <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
+            <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+        </div>
+        <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
+    </div>
+</nav>
+
 <div class="content-wrapper">
     <h1 class="page-title">My Sessions</h1>
 
@@ -44,8 +62,8 @@ Purpose:
                 <tr>
                     <td><b>{{ s.course_name }}</b></td>
                     <td>{{ s.session_date }}</td>
-                    <td>{{ s.session_start_time }}</td>
-                    <td>{{ s.session_end_time }}</td>
+                    <td class="time">{{ s.session_start_time }}</td>
+                    <td class="time">{{ s.session_end_time }}</td>
                     <td>{{ s.fname }} {{ s.lname }}</td>
                     <td>{{ s.session_location }}</td>
                     <td>{{ s.session_status }}</td>
@@ -88,8 +106,8 @@ Purpose:
                     <tr>
                         <td><b>{{ s.course_name }}</b></td>
                         <td>{{ s.session_date }}</td>
-                        <td>{{ s.session_start_time }}</td>
-                        <td>{{ s.session_end_time }}</td>
+                        <td class="time">{{ s.session_start_time }}</td>
+                        <td class="time">{{ s.session_end_time }}</td>
                         <td>{{ s.fname }} {{ s.lname }}</td>
                         <td>{{ s.session_location }}</td>
                         <td>{{ s.session_status }}</td>
@@ -111,7 +129,19 @@ Purpose:
         </div>
         {% endif %}
     </div>
-    <a class="link" href="{{ url_for('dashboard_route') }}">Back to Dashboard</a>
 </div>
 </body>
 </html>
+<script>
+    
+function formatTime(hour, minute) {
+    let period = hour >= 12 ? "PM" : "AM";
+    let displayHour = hour % 12 || 12;
+    return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
+}
+
+document.querySelectorAll(".time").forEach(cell => {
+    let [hour, minute] = cell.textContent.split(":").map(Number);
+    cell.textContent = formatTime(hour, minute);
+});
+</script>

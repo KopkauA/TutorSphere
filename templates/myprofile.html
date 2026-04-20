@@ -6,74 +6,88 @@
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 
+
 <body class="profile-page"> 
-<div class="profile-page">
-    <div class="profile-header">
-        <a href="{{ url_for('dashboard_route') }}" class="dash-link">🠠 Back to Dashboard</a>
-    </div>
-
-    <!-- TOP BAR -->
-    <div class="profile-header">
-        <h1 class="profile-title">My Profile</h1>
-        <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
-    
-    </div>
-
-    <!-- USER INFO -->
-    <div class="card">
-        <div class="row">
-            <div><strong>First Name:</strong> {{ user.fname }}</div>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="{{ url_for('dashboard_route') }}" class="logo">
+                <img src="{{ url_for('static', filename='Logo_textonly.png') }}" alt="Logo">
+            </a>
         </div>
 
-        <div class="row">
-            <div><strong>Last Name:</strong> {{ user.lname }}</div>
+        <div class="nav-right">
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard_route') }}">Home</a>
+                <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
+                <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
+                <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+            </div>
+            <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
+        </div>
+    </nav>
+
+    <div class="profile-container">
+
+        <!-- TOP BAR -->
+        <div class="profile-header">
+            <h1 class="profile-title">My Profile</h1>        
         </div>
 
-        <div class="row">
-            <div><strong>Email:</strong> {{ user.email }}</div>
+        <!-- USER INFO -->
+        <div class="card">
+            <div class="row">
+                <div><strong>First Name:</strong> {{ user.fname }}</div>
+            </div>
+
+            <div class="row">
+                <div><strong>Last Name:</strong> {{ user.lname }}</div>
+            </div>
+
+            <div class="row">
+                <div><strong>Email:</strong> {{ user.email }}</div>
+            </div>
         </div>
-    </div>
 
-    <!-- TUTOR SETTINGS -->
-    {% if user.is_tutor == 1 %}
+        <!-- TUTOR SETTINGS -->
+        {% if user.is_tutor == 1 %}
 
-    <h2 class="section-title">Tutoring Settings</h2>
+        <h2 class="section-title">Tutoring Settings</h2>
 
-    <div class="card">
+        <div class="card">
 
-        <form method="POST">
+            <form method="POST">
 
-            <!-- courses (original dropdown/autocomplete) -->
-            <div class="form-group">
-                <label class="form-label">Courses you teach</label>
+                <!-- courses (original dropdown/autocomplete) -->
+                <div class="form-group">
+                    <label class="form-label">Courses you teach</label>
 
-                <div class="autocomplete-wrapper">
-                    <input type="text"
-                        id="courseInput"
-                        class="form-input"
-                        placeholder="Type a course name..."
-                        autocomplete="off">
+                    <div class="autocomplete-wrapper">
+                        <input type="text"
+                            id="courseInput"
+                            class="form-input"
+                            placeholder="Type a course name..."
+                            autocomplete="off">
 
-                    <div id="suggestions" class="suggestions"></div>
+                        <div id="suggestions" class="suggestions"></div>
+                    </div>
+
+                    <div id="selectedCourses"></div>
+
+                    <input type="hidden" name="course_ids" id="courseIds">
                 </div>
 
-                <div id="selectedCourses"></div>
+                <!-- availability -->
+                <div class="form-group">
+                    <label>Current Availability</label>
+                    <div id="availability-container"></div>
+                </div>
 
-                <input type="hidden" name="course_ids" id="courseIds">
-            </div>
+                <button type="submit" class="button">Save Changes</button>
 
-            <!-- availability -->
-            <div class="form-group">
-                <label>Current Availability</label>
-                <div id="availability-container"></div>
-            </div>
+            </form>
+        </div>
 
-            <button type="submit" class="button">Save Changes</button>
-
-        </form>
-    </div>
-
-    {% endif %}
+        {% endif %}
 </div>
 </body>
 

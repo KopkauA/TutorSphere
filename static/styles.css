@@ -66,6 +66,7 @@ h2 {
 .main-layout {
   display: flex;
   gap: 32px;
+  flex-direction: column; 
 }
 
 .main-content {
@@ -80,7 +81,7 @@ h2 {
   font-weight: bold;
   color: var(--text);
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 30px;
 }
 
 .section-title {
@@ -120,6 +121,12 @@ h2 {
   display: block;
   font-size: 14px;
   color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.form-boldlabel {
+  display: block;
+  margin-top: 20px;
   margin-bottom: 8px;
 }
 
@@ -442,100 +449,154 @@ a:hover {
 -----------------*/
 
 body.profile-page {
-    margin: center;
-    background: white;
-    font-family: Arial, sans-serif;
+  margin: center;
+  background: var(--bg);
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 /* page container */
 .profile-page {
-
-    max-width: 900px;
-    margin: 40px auto;
-    flex-direction: column;
-    align-items: center;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  justify-content: center;
 }
-
+.profile-container {
+  width: 100%;
+  max-width: 900px;
+}
 /* top header row */
 .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 /* main title */
 .profile-title {
-    font-size: 32px;
-    margin: 0;
+  font-size: 32px;
+  margin: 0;
 }
 
-/* logout button look */
+/* logout button */
 .logout-link {
-    text-decoration: none;
-    color: white;
-    font-size: 14px;
-    padding: 8px 14px;
-    border: 1px solid #f4f6f8;
-    background-color: #4a90e2;
-    border-radius: 8px;
-    align-items: right;
+  text-decoration: none;
+  color: white !important;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: 1px solid #f4f6f8;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  align-items: right;
+  margin-left: auto;
+}
+.logout-link:hover {
+  background-color: var(--primary-dark);
+  color: white !important;
 }
 
-/* back to dashboard button look */
+/* back to dashboard button */
 .dash-link {
-    text-decoration: none;
-    color: #333;
-    font-size: 14px;
-    padding: 8px 14px;
-    border: 1px solid #f4f6f8;
-    background-color: #f4f6f8;
-    border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: 1px solid #f4f6f8;
+  background-color: #f4f6f8;
+  border-radius: 8px;
 }
 /* section title smaller than main title */
 .section-title {
-    font-size: 20px;
-    margin: 30px 0 10px;
-    color: #333;
+  font-size: 20px;
+  margin: 30px 0 10px;
+  color: #333;
 }
 
 /* grey card blocks */
 .card {
-    background: #fcfafa;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+  background: #fcfafa;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
 /* spacing rows inside card */
 .row {
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
 }
 
 .row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
-/* button spacing fix */
 button.button {
-    margin-top: 15px;
-    padding: 10px 16px;
-    border-radius: 8px;
+  margin-top: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
 }
 
 .day-block {
-    margin-bottom: 18px;
-    padding: 12px 0;
-    border-bottom: 1px solid #e6e8eb;
+  margin-bottom: 18px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e6e8eb;
 }
 
 .day-block:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/*--------------
+  Nav bar
+-----------------*/
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;   
+  padding: 0 16px;       
+  background: white;
+  border-bottom: 1px solid #e5e5e5;
+  height: auto;
+  box-sizing: border-box;
+  width: 100vw;
+}
+
+.nav-left {
+  padding-right: 40px;
+}
+
+.nav-right {
+  display: flex;   
+  align-items: center;
+  width: 100%;
+}
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-right a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.nav-right a:hover {
+  color: var(--primary);
+}
+
+.logo img {
+  height: 40px;   
+  width: auto;
+  display: block;
 }

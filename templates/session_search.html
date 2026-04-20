@@ -17,7 +17,26 @@ Purpose:
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 
+
 <body class="body">
+
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('dashboard_route') }}" class="logo">
+            <img src="{{ url_for('static', filename='Logo_textonly.png') }}" alt="Logo">
+        </a>
+    </div>
+
+    <div class="nav-right">
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard_route') }}">Home</a>
+            <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
+            <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
+            <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+        </div>
+        <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
+    </div>
+</nav>
 
 <div class="content-wrapper">
     <h1 class="page-title">Schedule a Session</h1>
@@ -28,7 +47,7 @@ Purpose:
              <!-- MAIN -->
             <div class="card">
                 <form method="POST" action="{{ url_for('search_sessions_route') }}">
-                    <label>Course</label>
+                    <label class="form-boldlabel">Course</label>
                     <div class="autocomplete-wrapper">
                         <input type="text"
                                id="courseInput"
@@ -40,7 +59,7 @@ Purpose:
                     </div>
                     <input type="hidden" name="course" id="courseId" value="{{ course_id or '' }}">
 
-                    <label>Date</label>
+                    <label class="form-boldlabel">Date</label>
                     <input type="date"
                            name="time"
                            class="form-input"
@@ -74,8 +93,8 @@ Purpose:
                                 <td><b>{{ s.course_id }}</b><br>{{ s.course_name }}</td>
                                 <td>{{ s.fname }} {{ s.lname }}</td>
                                 <td>{{ s.date }}</td>
-                                <td>{{ s.session_start_time }}</td>
-                                <td>{{ s.session_end_time }}</td>
+                                <td class="time">{{ s.session_start_time }}</td>
+                                <td class="time">{{ s.session_end_time }}</td>
                                 <td>{{ s.tutor_location }}</td>
                                 <td>
                                     <form method="POST" action="{{ url_for('session_confirm_route') }}">
@@ -96,9 +115,6 @@ Purpose:
                     <p>No sessions found.</p>
                 {% endif %}
             </div>
-
-            <a class="link" href="{{ url_for('dashboard_route') }}">Back to Dashboard</a>
-
         </div>
     </div>
 </div>
@@ -153,6 +169,19 @@ Purpose:
     courseInput.addEventListener("keydown", function() {
         courseIdInput.value = "";
     });
+</script>
+
+<script>
+function formatTime(hour, minute) {
+    let period = hour >= 12 ? "PM" : "AM";
+    let displayHour = hour % 12 || 12;
+    return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
+}
+
+document.querySelectorAll(".time").forEach(cell => {
+    let [hour, minute] = cell.textContent.split(":").map(Number);
+    cell.textContent = formatTime(hour, minute);
+});
 </script>
 
 </body>

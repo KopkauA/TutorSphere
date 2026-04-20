@@ -16,24 +16,50 @@ Purpose:
     <link rel="icon" type="image/x-icon" href="/static/Logo_nobackground.png">
 </head>
 
+
 <body class="body">
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('dashboard_route') }}" class="logo">
+            <img src="{{ url_for('static', filename='Logo_textonly.png') }}" alt="Logo">
+        </a>
+    </div>
+
+    <div class="nav-right">
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard_route') }}">Home</a>
+            <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
+            <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
+            <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+        </div>
+        <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
+    </div>
+</nav>
 
 <div class="content-wrapper">
-    <h1 class="page-title">Dashboard</h1>
-    <div class="main-layout">
 
-        <!-- MAIN -->
-        <div class="main-content">
-            <div class="card">
-                <h2>Name: {{ user.fname }} {{ user.lname }}</h2>
-                <p>Role: {{ role }}</p>
-                <ul>
-                    <li><a href="{{ url_for('search_sessions_route') }}">Schedule a Session</a></li>
-                    <li><a href="{{ url_for('my_sessions_route') }}">View Your Sessions</a></li>
-                    <li><a href="{{ url_for('view_my_profile_route') }}">View My Profile</a></li>
-                </ul>
-            </div>
-        </div>
+    <h1 class="page-title">Home</h1>
+
+    <div class="card">
+
+        <h2>Welcome, {{ user.fname }} </h2>
+
+        <p class="muted-text">
+            This platform helps you schedule tutoring sessions, manage bookings,
+            and keep track of your learning support all in one place.
+        </p>
+
+        <hr style="margin: 16px 0; border: 0; border-top: 1px solid #e5e5e5;">
+
+        <h3>Getting Started</h3>
+
+        <ul class="info-list">
+            <li>Use the navigation bar at the top to move between pages</li>
+            <li>Schedule sessions when you need tutoring support</li>
+            <li>Check "My Sessions" to view & manage upcoming bookings</li>
+            <li>Update your profile to keep your information current</li>
+        </ul>
+    </div>
 </div>
 
 </body>
