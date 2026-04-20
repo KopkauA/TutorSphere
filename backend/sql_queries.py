@@ -102,7 +102,7 @@ session_exists = text("""
     WHERE availability_id = :availability_id
       AND session_date = :session_date
       AND session_start_time = :session_start_time
-      AND session_status = 'Scheduled'
+      AND session_status != 'Canceled'
 """)
 
 student_schedule_conflict = text("""
@@ -158,28 +158,6 @@ user_exists = text("""
     WHERE email = :email
 """)
 
-
-rebook_session = text("""
-    UPDATE TutorSession
-    SET student_email = :email,
-        course_id = :course_id,
-        session_status = 'Scheduled',
-        session_date = :session_date,
-        session_start_time = :session_start_time,
-        session_end_time = :session_end_time,
-        session_location = :location
-    WHERE session_id = :session_id
-""")
-
-get_canceled_session = text("""
-    SELECT session_id
-    FROM TutorSession
-    WHERE availability_id = :availability_id
-      AND session_date = :session_date
-      AND session_start_time = :session_start_time
-      AND session_status = 'Canceled'
-""")
-
 cancel_session = text("""
     UPDATE TutorSession
     SET session_status = 'Canceled'
@@ -197,6 +175,7 @@ delete_availability = text("""
           SELECT 1
           FROM TutorSession ts
           WHERE ts.availability_id = ta.availability_id
+          AND ts.session_status = 'Scheduled'
       )
 """)
 

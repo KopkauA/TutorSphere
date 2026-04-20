@@ -58,10 +58,9 @@ class TutorAvailability(db.Model):
         nullable=False
     )
 
-    tutor_location = db.Column(db.String(100))
+    tutor_location = db.Column(db.String(50))
     shift_start_time = db.Column(db.Time, nullable=False)
     shift_end_time = db.Column(db.Time, nullable=False)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
     __table_args__ = (
         db.UniqueConstraint(
@@ -105,7 +104,7 @@ class TutorSession(db.Model):
     session_end_time = db.Column(db.Time, nullable=False)
 
     session_status = db.Column(
-        db.Enum('scheduled', 'completed', 'canceled'),
+        db.Enum('Scheduled', 'Completed', 'Canceled'),
         nullable=False
     )
 

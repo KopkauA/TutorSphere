@@ -333,44 +333,18 @@ def session_confirm_route():
         if exists:
             return render_template("session_confirm.html", error="This session slot is already booked.")
 
-        # Check for a canceled session to re-book
-        canceled_session = db.session.execute(
-            get_canceled_session,
-            {
+        # Insert a new session
+        db.session.execute(
+            insert_session,{
+                "email": session["user_email"],
+                "course_id": course_id,
                 "availability_id": availability_id,
-                "session_date": date,
-                "session_start_time": session_start_time
+                "location": session_location,
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time,
+                "session_date": date
             }
-        ).fetchone()
-
-        if canceled_session:
-            # Re-book by updating the existing canceled session
-            db.session.execute(
-                rebook_session,
-                {
-                    "session_id": canceled_session.session_id,
-                    "email": session["user_email"],
-                    "course_id": course_id,
-                    "session_date": date,
-                    "session_start_time": session_start_time,
-                    "session_end_time": session_end_time,
-                    "location": session_location
-                }
-            )
-        else:
-            # Insert a new session
-            db.session.execute(
-                insert_session,
-                {
-                    "email": session["user_email"],
-                    "course_id": course_id,
-                    "availability_id": availability_id,
-                    "location": session_location,
-                    "session_start_time": session_start_time,
-                    "session_end_time": session_end_time,
-                    "session_date": date
-                }
-            )
+        )
 
         db.session.commit()
         return redirect(url_for("session_confirm_route"))

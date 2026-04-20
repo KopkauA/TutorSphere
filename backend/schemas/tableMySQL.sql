@@ -49,9 +49,7 @@ CREATE TABLE TutorSession (
   session_end_time TIME NOT NULL,
   session_date DATE NOT NULL,
   session_status ENUM('Scheduled', 'Completed', 'Canceled') NOT NULL,
-
-  UNIQUE (availability_id, session_date, session_start_time),
-
+  
   FOREIGN KEY (student_email) REFERENCES Users(email),
   FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
