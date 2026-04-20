@@ -52,6 +52,10 @@ h2 {
   margin-bottom: 6px;
 }
 
+h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
 
 /* ---------------------
   LAYOUT
@@ -60,7 +64,7 @@ h2 {
   position: relative;
   max-width: 2000px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 30px 24px;
 }
 
 .main-layout {
@@ -77,11 +81,13 @@ h2 {
   Titles
 --------------------- */
 .page-title {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: bold;
   color: var(--text);
-  text-align: center;
-  margin-bottom: 30px;
+  text-align: left;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding-left: 10px;
 }
 
 .section-title {
@@ -89,6 +95,8 @@ h2 {
   font-weight: 600;
   color: var(--text);
   margin-bottom: 24px;
+  text-align: left;
+  padding-left: 10px;
 }
 
 /* ---------------------
@@ -580,9 +588,20 @@ button.button {
   align-items: center;
   width: 100%;
 }
+
 .nav-links {
   display: flex;
   gap: 25px;
+}
+.nav-links a {
+    color: #333;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: 0.2s ease;
+}
+.nav-links a.active {
+    color: var(--primary);
 }
 
 .nav-right a {
@@ -590,7 +609,6 @@ button.button {
   color: #333;
   font-weight: 500;
 }
-
 .nav-right a:hover {
   color: var(--primary);
 }
@@ -599,4 +617,33 @@ button.button {
   height: 40px;   
   width: auto;
   display: block;
+}
+
+/*--------------
+  Home Page
+-----------------*/
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.welcome-card {
+    margin-bottom: 18px;
+}
+
+.tip-card {
+    background: #f9fafb;
+    border-left: 4px solid var(--primary);
+}
+
+.info-list {
+    padding-left: 18px;
+    line-height: 1.7;
+}
+
+.info-list li {
+    margin-bottom: 6px;
 }

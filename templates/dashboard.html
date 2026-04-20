@@ -2,8 +2,8 @@
 
 Description: Dashboard page for logged-in users
 Purpose:
-* Link to schedule a session 
-* Link to view and cancel sessions for the logged-in user
+    * Link to schedule a session 
+    * Link to view and cancel sessions for the logged-in user
 
 -->
 
@@ -27,39 +27,80 @@ Purpose:
 
     <div class="nav-right">
         <div class="nav-links">
-            <a href="{{ url_for('dashboard_route') }}">Home</a>
-            <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
-            <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
-            <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+            <a href="{{ url_for('dashboard_route') }}"
+            class="{% if request.endpoint == 'dashboard_route' %}active{% endif %}">
+                Home
+            </a>
+
+            <a href="{{ url_for('search_sessions_route') }}"
+            class="{% if request.endpoint == 'search_sessions_route' %}active{% endif %}">
+                Schedule Session
+            </a>
+
+            <a href="{{ url_for('my_sessions_route') }}"
+            class="{% if request.endpoint == 'my_sessions_route' %}active{% endif %}">
+                My Sessions
+            </a>
+
+            <a href="{{ url_for('view_my_profile_route') }}"
+            class="{% if request.endpoint == 'view_my_profile_route' %}active{% endif %}">
+                Profile
+            </a>
         </div>
         <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
     </div>
 </nav>
 
 <div class="content-wrapper">
-
     <h1 class="page-title">Home</h1>
+
+    <div class="card welcome-card">
+        <h3>Welcome, {{ user.fname }}</h3>
+
+        <p class="muted-text">
+            {% if user.is_tutor == 1 %}
+                This is your dashboard overview. Here you can understand how to manage your tutoring activities, availability, and sessions.
+                Please note that although you are a tutor, you may still sign up for learning sessions!
+            {% else %}
+                This is your dashboard overview. Here you can understand how to manage your tutoring sessions and academic support. 
+            {% endif %}
+        </p>
+    </div>
 
     <div class="card">
 
-        <h2>Welcome, {{ user.fname }} </h2>
+        <h3>How to Use This Platform</h3>
 
-        <p class="muted-text">
-            This platform helps you schedule tutoring sessions, manage bookings,
-            and keep track of your learning support all in one place.
-        </p>
-
-        <hr style="margin: 16px 0; border: 0; border-top: 1px solid #e5e5e5;">
-
-        <h3>Getting Started</h3>
-
+        {% if user.is_tutor == 0 %}
         <ul class="info-list">
-            <li>Use the navigation bar at the top to move between pages</li>
-            <li>Schedule sessions when you need tutoring support</li>
-            <li>Check "My Sessions" to view & manage upcoming bookings</li>
-            <li>Update your profile to keep your information current</li>
+            <li>Use the top navigation bar to access all features of the platform</li>
+            <li>Schedule sessions when you need academic help</li>
+            <li>View upcoming and past sessions in your session history</li>
+            <li>Keep your profile updated with accurate information</li>
         </ul>
+        {% else %}
+        <ul class="info-list">
+            <li>Use the top navigation bar to access all features of the platform</li>
+            <li>Manage your availability so students can book sessions with you</li>
+            <li>Track your upcoming tutoring sessions</li>
+            <li>Keep your tutor profile and subjects up to date</li>
+        </ul>
+        {% endif %}
+
     </div>
+
+    <div class="card tip-card">
+        <h3>Quick Tip</h3>
+        <p class="muted-text">
+            {% if user.is_tutor == 1 %}
+                Keeping your availability updated helps students find you more easily and increases session bookings.
+                Be sure to check your sessions to not miss an appointment!
+            {% else %}
+                Regularly checking your sessions ensures you don't miss any upcoming tutoring appointments.
+            {% endif %}
+        </p>
+    </div>
+
 </div>
 
 </body>

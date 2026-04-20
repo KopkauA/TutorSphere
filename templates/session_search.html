@@ -2,9 +2,9 @@
 
 Description: Search page for finding available sessions
 Purpose:
-* Search for sessions based on course(required) and date (optional)
-* Display available sessions for booking
-* Book sessions
+    * Search for sessions based on course(required) and date (optional)
+    * Display available sessions for booking
+    * Book sessions
     
 -->
 
@@ -29,10 +29,25 @@ Purpose:
 
     <div class="nav-right">
         <div class="nav-links">
-            <a href="{{ url_for('dashboard_route') }}">Home</a>
-            <a href="{{ url_for('search_sessions_route') }}">Schedule</a>
-            <a href="{{ url_for('my_sessions_route') }}">My Sessions</a>
-            <a href="{{ url_for('view_my_profile_route') }}">Profile</a>
+            <a href="{{ url_for('dashboard_route') }}"
+            class="{% if request.endpoint == 'dashboard_route' %}active{% endif %}">
+                Home
+            </a>
+
+            <a href="{{ url_for('search_sessions_route') }}"
+            class="{% if request.endpoint == 'search_sessions_route' %}active{% endif %}">
+                Schedule Session
+            </a>
+
+            <a href="{{ url_for('my_sessions_route') }}"
+            class="{% if request.endpoint == 'my_sessions_route' %}active{% endif %}">
+                My Sessions
+            </a>
+
+            <a href="{{ url_for('view_my_profile_route') }}"
+            class="{% if request.endpoint == 'view_my_profile_route' %}active{% endif %}">
+                Profile
+            </a>
         </div>
         <a href="{{ url_for('logout_route') }}" class="logout-link">Logout</a>  
     </div>
