@@ -407,7 +407,7 @@ a:hover {
 .availability-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 #courseInput {
