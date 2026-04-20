@@ -59,6 +59,7 @@ tutor_sessions_query = text("""
     JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
     JOIN Users u ON ts.student_email = u.email
     WHERE ta.tutor_email = :email
+    ORDER BY ts.session_date, ts.session_start_time
 """)
 
 scheduled_sessions = text("""
@@ -76,7 +77,7 @@ get_user = text("""
     WHERE email = :email AND password = :password
 """)
 
-find_course = text("""
+get_course_name = text("""
     SELECT course_name
     FROM Courses
     WHERE course_id = :course_id
@@ -99,6 +100,15 @@ session_exists = text("""
     SELECT 1
     FROM TutorSession
     WHERE availability_id = :availability_id
+      AND session_date = :session_date
+      AND session_start_time = :session_start_time
+      AND session_status = 'Scheduled'
+""")
+
+student_schedule_conflict = text("""
+    SELECT 1 
+    FROM TutorSession 
+    WHERE student_email = :email
       AND session_date = :session_date
       AND session_start_time = :session_start_time
       AND session_status = 'Scheduled'

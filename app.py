@@ -171,7 +171,7 @@ def search_sessions_route():
 
         if course_id:
             c = db.session.execute(
-                find_course,
+                get_course_name,
                 {"course_id": course_id}
             ).fetchone()
             if c:
@@ -306,6 +306,19 @@ def session_confirm_route():
         session_end_time = request.form.get("session_end_time")
         session_location = request.form.get("session_location")
         date = request.form.get("date")
+
+        # Check if the student already has a session booked at this exact time
+        student_conflict = db.session.execute(
+            student_schedule_conflict,
+            {
+                "email": session["user_email"],
+                "session_date": date,
+                "session_start_time": session_start_time
+            }
+        ).fetchone()
+
+        if student_conflict:
+            return render_template("session_confirm.html", error="Schedule Conflict: Another session booked at this date and time")
 
         # Check if session already exists
         exists = db.session.execute(
