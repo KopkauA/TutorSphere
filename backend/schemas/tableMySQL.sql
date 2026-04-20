@@ -48,7 +48,7 @@ CREATE TABLE TutorSession (
   session_start_time TIME NOT NULL,
   session_end_time TIME NOT NULL,
   session_date DATE NOT NULL,
-  session_status ENUM('scheduled', 'completed', 'canceled') NOT NULL,
+  session_status ENUM('Scheduled', 'Completed', 'Canceled') NOT NULL,
 
   UNIQUE (availability_id, session_date, session_start_time),
 

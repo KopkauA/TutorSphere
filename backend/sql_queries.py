@@ -66,7 +66,7 @@ scheduled_sessions = text("""
     FROM TutorSession ts
     JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
     WHERE (ts.student_email = :email OR ta.tutor_email = :email)
-      AND ts.session_status = 'scheduled'
+      AND ts.session_status = 'Scheduled'
       AND ts.session_date >= CURRENT_DATE
 """)
 
@@ -101,7 +101,7 @@ session_exists = text("""
     WHERE availability_id = :availability_id
       AND session_date = :session_date
       AND session_start_time = :session_start_time
-      AND session_status = 'scheduled'
+      AND session_status = 'Scheduled'
 """)
 
 insert_user = text("""
@@ -138,7 +138,7 @@ insert_session = text("""
         :session_start_time,
         :session_end_time,
         :session_date,
-        'scheduled'
+        'Scheduled'
     )
 """)
 
@@ -153,7 +153,7 @@ rebook_session = text("""
     UPDATE TutorSession
     SET student_email = :email,
         course_id = :course_id,
-        session_status = 'scheduled',
+        session_status = 'Scheduled',
         session_date = :session_date,
         session_start_time = :session_start_time,
         session_end_time = :session_end_time,
@@ -167,12 +167,12 @@ get_canceled_session = text("""
     WHERE availability_id = :availability_id
       AND session_date = :session_date
       AND session_start_time = :session_start_time
-      AND session_status = 'canceled'
+      AND session_status = 'Canceled'
 """)
 
 cancel_session = text("""
     UPDATE TutorSession
-    SET session_status = 'canceled'
+    SET session_status = 'Canceled'
     WHERE session_id = :session_id
 """)
 
