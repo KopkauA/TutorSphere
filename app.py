@@ -227,7 +227,8 @@ def search_sessions_route():
                     {
                         "availability_id": r['availability_id'],
                         "session_date": session_dict['date'],
-                        "session_start_time": session_dict['session_start_time']
+                        "session_start_time": session_dict['session_start_time'],
+                        "session_end_time": session_dict['session_end_time']
                     }
                 ).fetchone()
 
@@ -313,7 +314,8 @@ def session_confirm_route():
             {
                 "email": session["user_email"],
                 "session_date": date,
-                "session_start_time": session_start_time
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time
             }
         ).fetchone()
 
@@ -326,7 +328,8 @@ def session_confirm_route():
             {
                 "availability_id": availability_id,
                 "session_date": date,
-                "session_start_time": session_start_time
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time
             }
         ).fetchone()
 
