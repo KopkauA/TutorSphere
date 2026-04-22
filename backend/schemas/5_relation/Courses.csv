@@ -1,0 +1,106 @@
+course_id,course_name
+CIS101,Intro to Computer Science
+CIS102,Programming Fundamentals
+CIS201,Data Structures
+CIS202,Object-Oriented Programming
+CIS220,Computer Organization
+CIS250,Database Systems
+CIS300,Operating Systems
+CIS310,Software Engineering
+CIS320,Web Application Development
+CIS330,Mobile App Development
+CIS340,Computer Networks
+CIS350,Cybersecurity Fundamentals
+CIS360,Artificial Intelligence
+CIS370,Machine Learning
+CIS380,Cloud Computing
+CIS390,Game Development
+CIS400,Senior Project
+CNT210,Network Security
+CNT220,Routing and Switching
+COP2510,Programming Concepts
+COP3330,Object-Oriented Software Design
+COP3530,Data Structures and Algorithms
+COP4020,Programming Languages
+COP4534,Algorithm Design
+COT3100,Discrete Structures
+COT4400,Analysis of Algorithms
+CAP4053,Introduction to AI
+CAP4630,Machine Learning Principles
+CDA3103,Computer Logic and Design
+CDA4102,Computer Architecture
+CGS2060,Computer Applications
+MAT101,College Algebra
+MAT1033,Intermediate Algebra
+MAT201,Calculus I
+MAT202,Calculus II
+MAT203,Calculus III
+MAT250,Linear Algebra
+MAT260,Differential Equations
+STA2023,Statistics I
+STA3032,Probability and Statistics
+PHY101,General Physics
+PHY301,Physics I
+PHY302,Physics II
+CHM101,General Chemistry I
+CHM102,General Chemistry II
+BIO101,Introduction to Biology
+BIO150,Biology Basics
+BIO201,Genetics
+BIO220,Microbiology
+BSC2085,Human Anatomy
+BSC2086,Human Physiology
+ENG101,Composition I
+ENG102,English Literature
+ENG201,Creative Writing
+ENG220,Technical Writing
+ENC3246,Professional Communication
+LIT300,American Literature
+LIT310,British Literature
+HIS101,World History I
+HIS102,World History II
+HIS201,US History I
+HIS202,US History II
+POS2041,American Government
+PSY101,Introduction to Psychology
+PSY201,Developmental Psychology
+PSY220,Cognitive Psychology
+SOC101,Introduction to Sociology
+SOC220,Social Problems
+ANT200,Cultural Anthropology
+ECO201,Macroeconomics
+ECO202,Microeconomics
+FIN3403,Business Finance
+ACG2021,Financial Accounting
+ACG2071,Managerial Accounting
+MAN3025,Management Concepts
+MAR3023,Marketing Principles
+BUL3130,Business Law
+ENT3613,Entrepreneurship
+GEB3213,Business Communications
+QMB3200,Business Statistics
+NUR101,Introduction to Nursing
+NUR220,Patient Care Fundamentals
+PHI101,Introduction to Philosophy
+PHI201,Ethics
+REL101,World Religions
+ART101,Art Appreciation
+ART220,Digital Design
+MUS101,Music Theory
+THE101,Theater Appreciation
+SPC2608,Public Speaking
+COM201,Mass Communication
+JOU2100,News Reporting
+AST2002,Astronomy
+GLY2010,Earth Science
+ENV3001,Environmental Science
+GIS3100,Geographic Information Systems
+EEL3003,Electrical Circuits
+EEL3111,Electronics I
+EML3022,Engineering Mechanics
+EGN3000,Engineering Analysis
+MAC1140,Precalculus Algebra
+MAC2311,Analytic Geometry and Calculus I
+MAC2312,Analytic Geometry and Calculus II
+MAC2313,Analytic Geometry and Calculus III
+MAD2104,Discrete Mathematics
