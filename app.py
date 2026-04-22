@@ -478,8 +478,7 @@ def view_my_profile_route():
 def logout_route():
     session.clear()
     return redirect(url_for("login_route"))
-
-
+    
 # get past data for profile 
 @app.route("/api/profile")
 def api_profile():
@@ -494,7 +493,7 @@ def api_profile():
     ).fetchall()
 
     availability_raw = db.session.execute(
-        get_tutor_availability,
+        get_profile_availability,
         {"email": email}
     ).fetchall()
 
@@ -503,8 +502,8 @@ def api_profile():
     for a in availability_raw:
         row = dict(a._mapping)
 
-        row["shift_start_time"] = str(row["shift_start_time"])
-        row["shift_end_time"] = str(row["shift_end_time"])
+        row["shift_start_time"] = str(row["shift_start_time"])[:-3]
+        row["shift_end_time"] = str(row["shift_end_time"])[:-3]
 
         availability.append(row)
 

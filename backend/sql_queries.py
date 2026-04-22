@@ -192,3 +192,17 @@ get_tutor_availability = text("""
     SELECT week_day, shift_start_time, shift_end_time, tutor_location
     FROM TutorAvailability
 """)
+
+get_profile_availability = text("""
+    SELECT 
+        week_day,
+        shift_start_time,
+        shift_end_time,
+        tutor_location
+    FROM TutorAvailability
+    WHERE tutor_email = :email
+    ORDER BY FIELD(
+        week_day,
+        'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
+    )
+""")

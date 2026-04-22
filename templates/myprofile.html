@@ -241,8 +241,8 @@ function renderAvailability() {
         const display = match ? "block" : "none";
         const checked = match ? "checked" : "";
 
-        const startVal = match ? match.shift_start_time.slice(0,5) : "";
-        const endVal = match ? match.shift_end_time.slice(0,5) : "";
+        const startVal = match ? match.shift_start_time.slice(0,5).padStart(5, "0") : "";
+        const endVal = match ? match.shift_end_time.slice(0,5).padStart(5, "0") : "";
         const locVal = match ? match.tutor_location : "";
 
         return `
@@ -265,7 +265,7 @@ function renderAvailability() {
 
                         <select name="${day}_location" class="form-input">
                             <option value="" disabled selected>Select location</option>
-                            <option value="In-person">In-person (LIB206)</option>
+                            <option value="In-person (LIB206)">In-person (LIB206)</option>
                             <option value="Microsoft Teams">Microsoft Teams</option>
                         </select>
                     </div>
@@ -282,8 +282,8 @@ function renderAvailability() {
         const end = document.querySelector(`[name="${day}_end"]`);
         const loc = document.querySelector(`[name="${day}_location"]`);
 
-        if (start) start.value = a.shift_start_time.slice(0,5);
-        if (end) end.value = a.shift_end_time.slice(0,5);
+        if (start) start.value = a.shift_start_time.slice(0,5).padStart(5, "0");;
+        if (end) end.value = a.shift_end_time.slice(0,5).padStart(5, "0");;
         if (loc) loc.value = a.tutor_location;
     });
 }
