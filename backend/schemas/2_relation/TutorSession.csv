@@ -1,6 +1,0 @@
-session_id,student_email,course_id,availability_id,session_location,session_datetime,session_status
-1,bob@example.com,CIS101,1,Library,2026-04-10 09:30:00,scheduled
-2,dave@example.com,MAT201,2,Coffee Shop,2026-04-12 14:30:00,scheduled
-3,bob@example.com,PHY301,3,Online,2026-04-11 10:30:00,scheduled
-4,dave@example.com,ENG102,5,Library,2026-04-15 09:30:00,scheduled
-5,bob@example.com,BIO150,6,Online,2026-04-09 15:30:00,scheduled
