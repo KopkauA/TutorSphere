@@ -163,7 +163,7 @@ user_exists = text("""
 cancel_session = text("""
     UPDATE TutorSession
     SET session_status = 'Canceled'
-    WHERE session_id = :session_id
+    WHERE session_id = :session_id AND session_status = 'Scheduled'
 """)
 
 delete_teaches = text("""

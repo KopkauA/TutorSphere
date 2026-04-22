@@ -82,14 +82,25 @@ Purpose:
                     <td>{{ s.fname }} {{ s.lname }}</td>
                     <td>{{ s.session_location }}</td>
                     <td>{{ s.session_status }}</td>
-                    <td>
-                        {% if s.session_status != 'canceled' and s.session_status != 'Canceled' %}
-                            <form method="POST" action="{{ url_for('session_cancel_route') }}">
-                                <input type="hidden" name="session_id" value="{{ s.session_id}}">
-                                <button type="submit" class="button">Cancel</button>
-                            </form>
-                        {% endif %}
-                    </td>
+                    <td>                          
+                          
+                            {% if s.session_status == 'Scheduled' %}
+
+                                <form method="POST" action="{{ url_for('session_cancel_route') }}" class="inline-form">
+                                    <input type="hidden" name="session_id" value="{{ s.session_id }}">
+                                    <button type="submit" class="btn-small cancel-btn">Cancel</button>
+                                </form>
+
+                                <form method="POST" action="{{ url_for('session_complete_route') }}" class="inline-form">
+                                    <input type="hidden" name="session_id" value="{{ s.session_id }}">
+                                    <button type="submit" class="btn-small complete-btn">Complete</button>
+                                </form>
+
+                            {% else %}
+                                <span>-</span>
+                            {% endif %}                   
+                    
+                        </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -126,13 +137,24 @@ Purpose:
                         <td>{{ s.fname }} {{ s.lname }}</td>
                         <td>{{ s.session_location }}</td>
                         <td>{{ s.session_status }}</td>
-                        <td>
-                            {% if s.session_status != 'canceled' and s.session_status != 'Canceled' %}
-                                <form method="POST" action="{{ url_for('session_cancel_route') }}">
-                                    <input type="hidden" name="session_id" value="{{ s.session_id}}">
-                                    <button type="submit" class="button">Cancel</button>
+                        <td>                          
+                          
+                            {% if s.session_status == 'Scheduled' %}
+
+                                <form method="POST" action="{{ url_for('session_cancel_route') }}" class="inline-form">
+                                    <input type="hidden" name="session_id" value="{{ s.session_id }}">
+                                    <button type="submit" class="btn-small cancel-btn">Cancel</button>
                                 </form>
-                            {% endif %}
+
+                                <form method="POST" action="{{ url_for('session_complete_route') }}" class="inline-form">
+                                    <input type="hidden" name="session_id" value="{{ s.session_id }}">
+                                    <button type="submit" class="btn-small complete-btn">Complete</button>
+                                </form>
+
+                            {% else %}
+                                <span>-</span>
+                            {% endif %}                   
+                    
                         </td>
                     </tr>
                     {% endfor %}

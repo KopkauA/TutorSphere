@@ -370,6 +370,26 @@ def session_cancel_route():
 
     return redirect(url_for("my_sessions_route"))
 
+@app.route("/session_complete", methods=["POST"])
+def session_complete_route():
+    if 'user_email' not in session:
+        return redirect(url_for('login_route'))
+
+    session_id = request.form.get("session_id")
+
+    if session_id:
+        db.session.execute(
+            text("""
+                UPDATE TutorSession
+                SET session_status = 'Completed'
+                WHERE session_id = :session_id
+            """),
+            {"session_id": session_id}
+        )
+        db.session.commit()
+
+    return redirect(url_for("my_sessions_route"))
+
 @app.route("/myprofile", methods=["GET", "POST"])
 def view_my_profile_route():
     if 'user_email' not in session:

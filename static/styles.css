@@ -647,3 +647,31 @@ button.button {
 .info-list li {
     margin-bottom: 6px;
 }
+
+.inline-form {
+    display: inline-block;
+    margin: 0;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.complete-btn {
+    background-color: #2ecc71;
+    color: white;
+    margin-left: 4px;
+}
+
+.btn-small:hover {
+    opacity: 0.85;
+}
