@@ -34,6 +34,7 @@ CREATE TABLE TutorAvailability (
   shift_start_time TIME NOT NULL,
   shift_end_time TIME NOT NULL,
   tutor_location VARCHAR(50) NOT NULL,
+  is_active SMALLINT NOT NULL DEFAULT 1,
   
   UNIQUE (tutor_email, week_day, shift_start_time, shift_end_time),
   FOREIGN KEY (tutor_email) REFERENCES Users(email)

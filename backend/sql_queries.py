@@ -17,6 +17,16 @@ available_sessions_query = text("""
     JOIN Courses c ON t.course_id = c.course_id
     WHERE c.course_id = :course_id
       AND (:selected_weekday IS NULL OR ta.week_day = :selected_weekday)
+      AND ta.is_active = 1
+
+      AND NOT EXISTS (
+          SELECT 1
+          FROM TutorSession ts
+          WHERE ts.availability_id = ta.availability_id
+            AND ts.session_status = 'Scheduled'
+            AND ts.session_date >= CURRENT_DATE
+      )
+
     ORDER BY FIELD(
         ta.week_day,
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
@@ -127,9 +137,12 @@ insert_teaches = text("""
 """)
 
 insert_availability = text("""
-    INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location)
-    VALUES (:tutor_email, :week_day, :shift_start_time, :shift_end_time, :tutor_location)"""
-)
+    INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location, is_active)
+    VALUES (:tutor_email, :week_day, :shift_start_time, :shift_end_time, :tutor_location, 1)
+    ON DUPLICATE KEY UPDATE 
+        tutor_location = VALUES(tutor_location), 
+        is_active = 1
+""")
 
 insert_session = text("""
     INSERT INTO TutorSession (
@@ -171,14 +184,9 @@ delete_teaches = text("""
 """)
 
 delete_availability = text("""
-    DELETE FROM TutorAvailability ta
-    WHERE ta.tutor_email = :email
-      AND NOT EXISTS (
-          SELECT 1
-          FROM TutorSession ts
-          WHERE ts.availability_id = ta.availability_id
-          AND ts.session_status = 'Scheduled'
-      )
+    UPDATE TutorAvailability
+    SET is_active = 0
+    WHERE tutor_email = :email
 """)
 
 get_tutor_courses = text("""
@@ -191,6 +199,12 @@ get_tutor_courses = text("""
 get_tutor_availability = text("""
     SELECT week_day, shift_start_time, shift_end_time, tutor_location
     FROM TutorAvailability
+    WHERE tutor_email = :email AND is_active = 1
+    ORDER BY FIELD(
+        week_day,
+        'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
+    ),
+    shift_start_time
 """)
 
 get_profile_availability = text("""
@@ -200,7 +214,7 @@ get_profile_availability = text("""
         shift_end_time,
         tutor_location
     FROM TutorAvailability
-    WHERE tutor_email = :email
+    WHERE tutor_email = :email AND is_active = 1
     ORDER BY FIELD(
         week_day,
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'

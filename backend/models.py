@@ -62,6 +62,8 @@ class TutorAvailability(db.Model):
     shift_start_time = db.Column(db.Time, nullable=False)
     shift_end_time = db.Column(db.Time, nullable=False)
 
+    is_active = db.Column(db.SmallInteger, nullable=False, default=1)
+
     __table_args__ = (
         db.UniqueConstraint(
             'tutor_email',

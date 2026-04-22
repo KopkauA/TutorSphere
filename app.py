@@ -443,31 +443,16 @@ def view_my_profile_route():
             # Only insert if all fields exist
             if start and end and location:
                 
-                existing = db.session.execute(text("""
-                    SELECT 1 FROM TutorAvailability
-                    WHERE tutor_email = :email
-                    AND week_day = :day
-                    AND shift_start_time = :start
-                    AND shift_end_time = :end
-                """), {
-                    "email": email,
-                    "day": day,
-                    "start": start,
-                    "end": end
-                }).fetchone()
-
-                # only add if not already existing
-                if not existing:
-                    db.session.execute(
-                        insert_availability,
-                        {
-                            "tutor_email": email,
-                            "week_day": day,
-                            "shift_start_time": start,
-                            "shift_end_time": end,
-                            "tutor_location": location
-                        }
-                    )
+                db.session.execute(
+                    insert_availability,
+                    {
+                        "tutor_email": email,
+                        "week_day": day,
+                        "shift_start_time": start,
+                        "shift_end_time": end,
+                        "tutor_location": location
+                    }
+                )
 
         db.session.commit()
         return redirect(url_for("view_my_profile_route"))
