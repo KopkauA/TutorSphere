@@ -1,1 +1,0 @@
-C:/Users/chloe/OneDrive - University of South Florida/2025-2026/2026Spring/COP4710 - Database Design - Tu/proj4/TutorSphere/backend/schemas/tableMySQL.sql

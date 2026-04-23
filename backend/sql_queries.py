@@ -65,15 +65,6 @@ tutor_sessions_query = text("""
     ORDER BY ts.session_date, ts.session_start_time
 """)
 
-scheduled_sessions = text("""
-    SELECT COUNT(ts.session_id) as upcoming_count
-    FROM TutorSession ts
-    JOIN TutorAvailability ta ON ts.availability_id = ta.availability_id
-    WHERE (ts.student_email = :email OR ta.tutor_email = :email)
-      AND ts.session_status = 'Scheduled'
-      AND ts.session_date >= CURRENT_DATE
-""")
-
 get_user = text("""
     SELECT *
     FROM Users
@@ -86,7 +77,6 @@ get_course_name = text("""
     WHERE course_id = :course_id
 """)
 
-
 get_courses = text("""
     SELECT course_id, course_name
     FROM Courses
@@ -96,7 +86,8 @@ get_courses = text("""
 """)
 
 get_role = text("""
-    SELECT is_tutor FROM Users WHERE email = :email
+    SELECT is_tutor FROM Users 
+    WHERE email = :email
 """)
 
 session_exists = text("""
@@ -186,6 +177,12 @@ cancel_session = text("""
       ))
 """)
 
+complete_session = text("""
+    UPDATE TutorSession
+    SET session_status = 'Completed'
+    WHERE session_id = :session_id
+""")
+
 delete_teaches = text("""
     DELETE FROM Teaches WHERE tutor_email = :email
 """)
@@ -204,7 +201,11 @@ get_tutor_courses = text("""
 """)
 
 get_tutor_availability = text("""
-    SELECT week_day, shift_start_time, shift_end_time, tutor_location
+    SELECT 
+        week_day, 
+        shift_start_time, 
+        shift_end_time, 
+        tutor_location
     FROM TutorAvailability
     WHERE tutor_email = :email AND is_active = 1
     ORDER BY FIELD(
@@ -212,18 +213,4 @@ get_tutor_availability = text("""
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
     ),
     shift_start_time
-""")
-
-get_profile_availability = text("""
-    SELECT 
-        week_day,
-        shift_start_time,
-        shift_end_time,
-        tutor_location
-    FROM TutorAvailability
-    WHERE tutor_email = :email AND is_active = 1
-    ORDER BY FIELD(
-        week_day,
-        'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
-    )
 """)

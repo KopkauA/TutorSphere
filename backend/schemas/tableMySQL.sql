@@ -55,6 +55,3 @@ CREATE TABLE TutorSession (
   FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
 ) ENGINE=InnoDB;
-
-CREATE INDEX idx_tutor_availability 
-ON TutorAvailability(tutor_email, week_day);

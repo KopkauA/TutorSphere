@@ -2,10 +2,10 @@ import os
 from datetime import datetime, timedelta
 
 from flask import Flask, render_template, request, redirect, url_for, session
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-from backend.models import db
 from backend.sql_queries import *
 from backend.date import date_to_weekday, weekday_to_date
 
@@ -14,15 +14,13 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db.init_app(app)
-
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
 
 # DB TEST
-with app.app_context():
-    db.session.execute(text("SELECT 1"))
+with engine.connect() as conn:
+    conn.execute(text("SELECT 1"))
     print("DB Connection Successful")
 
 @app.route("/")
@@ -36,10 +34,11 @@ def login_route():
         email = request.form['email']
         password = request.form['password']
 
-        user = db.session.execute(
-            get_user,
-            {"email": email, "password": password}
-        ).fetchone()
+        with SessionLocal() as db:
+            user = db.execute(
+                get_user,
+                {"email": email, "password": password}
+            ).fetchone()
 
         if user:
             session['user_email'] = email
@@ -58,29 +57,30 @@ def signup_route():
         is_tutor = int(request.form.get('is_tutor', 0))
         email = request.form['email']
 
-        existing_user = db.session.execute(
-            user_exists,
-            {"email": email}
-        ).fetchone()
+        with SessionLocal() as db:
+            existing_user = db.execute(
+                user_exists,
+                {"email": email}
+            ).fetchone()
 
-        if existing_user:
-            return render_template(
-                'signup.html',
-                error="There is already an account with this email."
-            )
+            if existing_user:
+                return render_template(
+                    'signup.html',
+                    error="There is already an account with this email."
+                )
 
-        params = {
-            "email": request.form['email'],
-            "fname": request.form['fname'],
-            "lname": request.form['lname'],
-            "password": request.form['password'],
-            "is_tutor": is_tutor
-        }
+            params = {
+                "email": request.form['email'],
+                "fname": request.form['fname'],
+                "lname": request.form['lname'],
+                "password": request.form['password'],
+                "is_tutor": is_tutor
+            }
 
-        db.session.execute(insert_user, params)
-        db.session.commit()
+            db.execute(insert_user, params)
+            db.commit()
 
-        session['user_email'] = params['email']
+        session['user_email'] = email
 
         if is_tutor == 1:
             return redirect(url_for('signup_tutor_route'))
@@ -99,37 +99,37 @@ def signup_tutor_route():
 
         email = session['user_email']
 
-        # courses
-        course_ids = request.form.get("course_ids")
+        with SessionLocal() as db:
 
-        if course_ids:
-            for cid in course_ids.split(","):
-                db.session.execute(
-                    insert_teaches,
-                    {"tutor_email": email, "course_id": cid}
-                )
+            course_ids = request.form.get("course_ids")
 
-        # availability and location
-        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+            if course_ids:
+                for cid in course_ids.split(","):
+                    db.execute(
+                        insert_teaches,
+                        {"tutor_email": email, "course_id": cid}
+                    )
 
-        for day in days:
-            start = request.form.get(f"{day}_start")
-            end = request.form.get(f"{day}_end")
-            location = request.form.get(f"{day}_location")
+            days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
-            if start and end and location:
-                db.session.execute(
-                    insert_availability,
-                    {
-                        "tutor_email": email,
-                        "week_day": day,
-                        "shift_start_time": start,
-                        "shift_end_time": end,
-                        "tutor_location": location
-                    }
-                )
-        #commit changes
-        db.session.commit()
+            for day in days:
+                start = request.form.get(f"{day}_start")
+                end = request.form.get(f"{day}_end")
+                location = request.form.get(f"{day}_location")
+
+                if start and end and location:
+                    db.execute(
+                        insert_availability,
+                        {
+                            "tutor_email": email,
+                            "week_day": day,
+                            "shift_start_time": start,
+                            "shift_end_time": end,
+                            "tutor_location": location
+                        }
+                    )
+
+            db.commit()
 
         return redirect(url_for("dashboard_route"))
 
@@ -140,10 +140,11 @@ def signup_tutor_route():
 def get_courses_route():
     q = request.args.get("q", "")
 
-    results = db.session.execute(
-        get_courses,
-        {"q": f"%{q}%"}
-    ).fetchall()
+    with SessionLocal() as db:
+        results = db.execute(
+            get_courses,
+            {"q": f"%{q}%"}
+        ).fetchall()
 
     return {
         "courses": [
@@ -170,15 +171,13 @@ def search_sessions_route():
         selected_date = request.form.get("time")
 
         if course_id:
-            c = db.session.execute(
-                get_course_name,
-                {"course_id": course_id}
-            ).fetchone()
-            if c:
-                course_name = c.course_name
-
-        if not selected_date:
-            selected_date = None
+            with SessionLocal() as db:
+                c = db.execute(
+                    get_course_name,
+                    {"course_id": course_id}
+                ).fetchone()
+                if c:
+                    course_name = c.course_name
 
         if selected_date:
             selected_weekday = date_to_weekday(selected_date)
@@ -190,10 +189,11 @@ def search_sessions_route():
             "user_email": session["user_email"]
         }
 
-        results = db.session.execute(
-            available_sessions_query,
-            params
-        ).fetchall()
+        with SessionLocal() as db:
+            results = db.execute(
+                available_sessions_query,
+                params
+            ).fetchall()
 
         sessions_list = []
 
@@ -203,7 +203,6 @@ def search_sessions_route():
             start_dt = datetime.strptime(str(r['shift_start_time']), "%H:%M:%S")
             end_dt = datetime.strptime(str(r['shift_end_time']), "%H:%M:%S")
 
-            # Generate 1 hour slots inside the shift
             current = start_dt
 
             while current + timedelta(hours=1) <= end_dt:
@@ -215,34 +214,32 @@ def search_sessions_route():
                 session_dict['session_start_time'] = slot_start.strftime("%H:%M:%S")
                 session_dict['session_end_time'] = slot_end.strftime("%H:%M:%S")
 
-                # assign date
                 if not selected_date:
                     generated_date = weekday_to_date(str(r['week_day']))
                     session_dict['date'] = generated_date.strftime('%Y-%m-%d')
                 else:
                     session_dict['date'] = selected_date
 
-                # Check if this specific 1-hour slot is already booked
-                is_booked = db.session.execute(
-                    session_exists,
-                    {
-                        "availability_id": r['availability_id'],
-                        "session_date": session_dict['date'],
-                        "session_start_time": session_dict['session_start_time'],
-                        "session_end_time": session_dict['session_end_time']
-                    }
-                ).fetchone()
+                with SessionLocal() as db:
+                    is_booked = db.execute(
+                        session_exists,
+                        {
+                            "availability_id": r['availability_id'],
+                            "session_date": session_dict['date'],
+                            "session_start_time": session_dict['session_start_time'],
+                            "session_end_time": session_dict['session_end_time']
+                        }
+                    ).fetchone()
 
-                # Check if this specific 1-hour slot conflicts with their own tutoring shift
-                shift_conflict = db.session.execute(
-                    tutor_shift_conflict,
-                    {
-                        "email": session["user_email"],
-                        "week_day": str(r['week_day']),
-                        "session_start_time": session_dict['session_start_time'],
-                        "session_end_time": session_dict['session_end_time']
-                    }
-                ).fetchone()
+                    shift_conflict = db.execute(
+                        tutor_shift_conflict,
+                        {
+                            "email": session["user_email"],
+                            "week_day": str(r['week_day']),
+                            "session_start_time": session_dict['session_start_time'],
+                            "session_end_time": session_dict['session_end_time']
+                        }
+                    ).fetchone()
 
                 if not is_booked and not shift_conflict:
                     sessions_list.append(session_dict)
@@ -272,24 +269,25 @@ def my_sessions_route():
 
     email = session['user_email']
 
-    sessions = db.session.execute(
-        student_sessions_query,
-        {"email": email}
-    ).fetchall()
-
-    user = db.session.execute(
-        get_role,
-        {"email": email}
-    ).fetchone()
-
-    is_tutor = user.is_tutor if user else 0
-    tutor_sessions = []
-
-    if is_tutor == 1:
-        tutor_sessions = db.session.execute(
-            tutor_sessions_query,
+    with SessionLocal() as db:
+        sessions = db.execute(
+            student_sessions_query,
             {"email": email}
         ).fetchall()
+
+        user = db.execute(
+            get_role,
+            {"email": email}
+        ).fetchone()
+
+        is_tutor = user.is_tutor if user else 0
+        tutor_sessions = []
+
+        if is_tutor == 1:
+            tutor_sessions = db.execute(
+                tutor_sessions_query,
+                {"email": email}
+            ).fetchall()
 
     return render_template("my_sessions.html", my_sessions=sessions, is_tutor=is_tutor, tutor_sessions=tutor_sessions)
 
@@ -298,10 +296,11 @@ def dashboard_route():
     if 'user_email' not in session:
         return redirect(url_for('login_route'))
 
-    user = db.session.execute(
-        text("SELECT fname, lname, is_tutor FROM Users WHERE email = :email"),
-        {"email": session['user_email']}
-    ).fetchone()
+    with SessionLocal() as db:
+        user = db.execute(
+            text("SELECT fname, lname, is_tutor FROM Users WHERE email = :email"),
+            {"email": session['user_email']}
+        ).fetchone()
 
     role = "Tutor" if user.is_tutor == 1 else "Student"
 
@@ -313,6 +312,7 @@ def session_confirm_route():
         return redirect(url_for('login_route'))
 
     if request.method == "POST":
+
         availability_id = request.form.get("availability_id")
         course_id = request.form.get("course_id")
         session_start_time = request.form.get("session_start_time")
@@ -320,66 +320,67 @@ def session_confirm_route():
         session_location = request.form.get("session_location")
         date = request.form.get("date")
 
-        # Check if the student already has a session booked at this exact time
-        student_conflict = db.session.execute(
-            student_schedule_conflict,
-            {
-                "email": session["user_email"],
-                "session_date": date,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time
-            }
-        ).fetchone()
+        with SessionLocal() as db:
 
-        if student_conflict:
-            return render_template("session_confirm.html", error="Schedule Conflict: Another session booked at this date and time")
+            student_conflict = db.execute(
+                student_schedule_conflict,
+                {
+                    "email": session["user_email"],
+                    "session_date": date,
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time
+                }
+            ).fetchone()
 
-        # Check if the student has a tutoring shift during this time
-        weekday = date_to_weekday(date)
-        shift_conflict = db.session.execute(
-            tutor_shift_conflict,
-            {
-                "email": session["user_email"],
-                "week_day": weekday,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time
-            }
-        ).fetchone()
+            if student_conflict:
+                return render_template("session_confirm.html", error="Schedule Conflict: Another session booked at this date and time")
 
-        if shift_conflict:
-            return render_template("session_confirm.html", error="Schedule Conflict: You are scheduled to tutor during this time.")
+            weekday = date_to_weekday(date)
 
-        # Check if session already exists
-        exists = db.session.execute(
-            session_exists,
-            {
-                "availability_id": availability_id,
-                "session_date": date,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time
-            }
-        ).fetchone()
+            shift_conflict = db.execute(
+                tutor_shift_conflict,
+                {
+                    "email": session["user_email"],
+                    "week_day": weekday,
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time
+                }
+            ).fetchone()
 
-        if exists:
-            return render_template("session_confirm.html", error="This session slot is already booked.")
+            if shift_conflict:
+                return render_template("session_confirm.html", error="Schedule Conflict: You are scheduled to tutor during this time.")
 
-        # Insert a new session
-        db.session.execute(
-            insert_session,{
-                "email": session["user_email"],
-                "course_id": course_id,
-                "availability_id": availability_id,
-                "location": session_location,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time,
-                "session_date": date
-            }
-        )
+            exists = db.execute(
+                session_exists,
+                {
+                    "availability_id": availability_id,
+                    "session_date": date,
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time
+                }
+            ).fetchone()
 
-        db.session.commit()
+            if exists:
+                return render_template("session_confirm.html", error="This session slot is already booked.")
+
+            db.execute(
+                insert_session,{
+                    "email": session["user_email"],
+                    "course_id": course_id,
+                    "availability_id": availability_id,
+                    "location": session_location,
+                    "session_start_time": session_start_time,
+                    "session_end_time": session_end_time,
+                    "session_date": date
+                }
+            )
+
+            db.commit()
+
         return redirect(url_for("session_confirm_route"))
 
     return render_template("session_confirm.html")
+
 
 @app.route("/session_cancel", methods=["GET", "POST"])
 def session_cancel_route():
@@ -389,13 +390,15 @@ def session_cancel_route():
     if request.method == "POST":
         session_id = request.form.get("session_id")
         if session_id:
-            db.session.execute(
-                cancel_session,
-                {"session_id": session_id, "email": session['user_email']}
-            )
-            db.session.commit()
+            with SessionLocal() as db:
+                db.execute(
+                    cancel_session,
+                    {"session_id": session_id, "email": session['user_email']}
+                )
+                db.commit()
 
     return redirect(url_for("my_sessions_route"))
+
 
 @app.route("/session_complete", methods=["POST"])
 def session_complete_route():
@@ -405,17 +408,15 @@ def session_complete_route():
     session_id = request.form.get("session_id")
 
     if session_id:
-        db.session.execute(
-            text("""
-                UPDATE TutorSession
-                SET session_status = 'Completed'
-                WHERE session_id = :session_id
-            """),
-            {"session_id": session_id}
-        )
-        db.session.commit()
+        with SessionLocal() as db:
+            db.execute(
+                complete_session,
+                {"session_id": session_id}
+            )
+            db.commit()
 
     return redirect(url_for("my_sessions_route"))
+
 
 @app.route("/myprofile", methods=["GET", "POST"])
 def view_my_profile_route():
@@ -424,79 +425,73 @@ def view_my_profile_route():
 
     email = session['user_email']
 
-    # Fetch user info
-    user = db.session.execute(
-        text("SELECT fname, lname, email, is_tutor FROM Users WHERE email = :email"),
-        {"email": email}
-    ).fetchone()
+    with SessionLocal() as db:
 
-    # ---------- UPDATE TUTOR PROFILE ----------
-    if request.method == "POST" and user.is_tutor == 1:
+        user = db.execute(
+            text("SELECT fname, lname, email, is_tutor FROM Users WHERE email = :email"),
+            {"email": email}
+        ).fetchone()
 
-        # ---------------- COURSES ----------------
-        course_ids = request.form.get("course_ids", "")
-        course_list = [c for c in course_ids.split(",") if c]
+        if request.method == "POST" and user.is_tutor == 1:
 
-        # Delete old courses
-        db.session.execute(delete_teaches, {"email": email})
+            course_ids = request.form.get("course_ids", "")
+            course_list = [c for c in course_ids.split(",") if c]
 
-        # Insert new courses
-        for cid in course_list:
-            existing = db.session.execute(text("""
-                SELECT 1 FROM Teaches
-                WHERE tutor_email = :email
-                AND course_id = :cid
-            """), {
-                "email": email,
-                "cid": cid
-            }).fetchone()
+            db.execute(delete_teaches, {"email": email})
 
-            if not existing:
-                db.session.execute(
-                    insert_teaches,
-                    {"tutor_email": email, "course_id": cid}
-                )
+            for cid in course_list:
+                existing = db.execute(text("""
+                    SELECT 1 FROM Teaches
+                    WHERE tutor_email = :email
+                    AND course_id = :cid
+                """), {
+                    "email": email,
+                    "cid": cid
+                }).fetchone()
 
-        # Delete availability that is not tied to sessions
-        db.session.execute(delete_availability, {"email": email})
+                if not existing:
+                    db.execute(
+                        insert_teaches,
+                        {"tutor_email": email, "course_id": cid}
+                    )
 
-        days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+            db.execute(delete_availability, {"email": email})
 
-        for day in days:
-            start = request.form.get(f"{day}_start")
-            end = request.form.get(f"{day}_end")
-            location = request.form.get(f"{day}_location")
+            days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 
-            # Only insert if all fields exist
-            if start and end and location:
-                
-                db.session.execute(
-                    insert_availability,
-                    {
-                        "tutor_email": email,
-                        "week_day": day,
-                        "shift_start_time": start,
-                        "shift_end_time": end,
-                        "tutor_location": location
-                    }
-                )
+            for day in days:
+                start = request.form.get(f"{day}_start")
+                end = request.form.get(f"{day}_end")
+                location = request.form.get(f"{day}_location")
 
-        db.session.commit()
-        return redirect(url_for("view_my_profile_route"))
+                if start and end and location:
+                    db.execute(
+                        insert_availability,
+                        {
+                            "tutor_email": email,
+                            "week_day": day,
+                            "shift_start_time": start,
+                            "shift_end_time": end,
+                            "tutor_location": location
+                        }
+                    )
 
-    courses = []
-    availability = []
+            db.commit()
+            return redirect(url_for("view_my_profile_route"))
 
-    if user.is_tutor == 1:
-        courses = db.session.execute(
-            get_tutor_courses,
-            {"email": user.email}
-        ).fetchall()
+        courses = []
+        availability = []
 
-        availability = db.session.execute(
-            get_tutor_availability,
-            {"email": user.email}
-        ).fetchall()
+        if user.is_tutor == 1:
+            courses = db.execute(
+                get_tutor_courses,
+                {"email": user.email}
+            ).fetchall()
+
+            availability = db.execute(
+                get_tutor_availability,
+                {"email": user.email}
+            ).fetchall()
 
     return render_template(
         "myprofile.html",
@@ -510,8 +505,8 @@ def view_my_profile_route():
 def logout_route():
     session.clear()
     return redirect(url_for("login_route"))
-    
-# get past data for profile 
+
+# get past data for profile
 @app.route("/api/profile")
 def api_profile():
     if 'user_email' not in session:
@@ -519,17 +514,18 @@ def api_profile():
 
     email = session['user_email']
 
-    courses = db.session.execute(
-        get_tutor_courses,
-        {"email": email}
-    ).fetchall()
+    with SessionLocal() as db:
 
-    availability_raw = db.session.execute(
-        get_profile_availability,
-        {"email": email}
-    ).fetchall()
+        courses = db.execute(
+            get_tutor_courses,
+            {"email": email}
+        ).fetchall()
 
-    # convert time to a string 
+        availability_raw = db.execute(
+            get_tutor_availability,
+            {"email": email}
+        ).fetchall()
+
     availability = []
     for a in availability_raw:
         row = dict(a._mapping)
