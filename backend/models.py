@@ -72,6 +72,10 @@ class TutorAvailability(db.Model):
             'shift_end_time',
             name='unique_availability'
         ),
+        db.CheckConstraint(
+            'shift_start_time < shift_end_time',
+            name='check_valid_shift_time'
+        ),
     )
 
 
@@ -116,5 +120,9 @@ class TutorSession(db.Model):
             'session_date',
             'session_start_time',
             name='unique_session_slot'
+        ),
+        db.CheckConstraint(
+            'session_start_time < session_end_time',
+            name='check_valid_session_time'
         ),
     )

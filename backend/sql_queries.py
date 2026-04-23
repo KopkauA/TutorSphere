@@ -19,14 +19,6 @@ available_sessions_query = text("""
       AND (:selected_weekday IS NULL OR ta.week_day = :selected_weekday)
       AND ta.is_active = 1
 
-      AND NOT EXISTS (
-          SELECT 1
-          FROM TutorSession ts
-          WHERE ts.availability_id = ta.availability_id
-            AND ts.session_status = 'Scheduled'
-            AND ts.session_date >= CURRENT_DATE
-      )
-
     ORDER BY FIELD(
         ta.week_day,
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
@@ -176,7 +168,11 @@ user_exists = text("""
 cancel_session = text("""
     UPDATE TutorSession
     SET session_status = 'Canceled'
-    WHERE session_id = :session_id AND session_status = 'Scheduled'
+    WHERE session_id = :session_id 
+      AND session_status = 'Scheduled'
+      AND (student_email = :email OR availability_id IN (
+          SELECT availability_id FROM TutorAvailability WHERE tutor_email = :email
+      ))
 """)
 
 delete_teaches = text("""
