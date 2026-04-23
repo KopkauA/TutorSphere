@@ -17,6 +17,7 @@ available_sessions_query = text("""
     JOIN Courses c ON t.course_id = c.course_id
     WHERE c.course_id = :course_id
       AND (:selected_weekday IS NULL OR ta.week_day = :selected_weekday)
+      AND ta.tutor_email != :user_email
       AND ta.is_active = 1
 
     ORDER BY FIELD(
@@ -116,6 +117,16 @@ student_schedule_conflict = text("""
       AND session_start_time < :session_end_time
       AND session_end_time > :session_start_time
       AND session_status = 'Scheduled'
+""")
+
+tutor_shift_conflict = text("""
+    SELECT 1 
+    FROM TutorAvailability 
+    WHERE tutor_email = :email
+      AND is_active = 1
+      AND week_day = :week_day
+      AND shift_start_time < :session_end_time
+      AND shift_end_time > :session_start_time
 """)
 
 insert_user = text("""

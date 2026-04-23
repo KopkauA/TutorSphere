@@ -186,7 +186,8 @@ def search_sessions_route():
         params = {
             "course_id": course_id,
             "selected_date": selected_date,
-            "selected_weekday": selected_weekday
+            "selected_weekday": selected_weekday,
+            "user_email": session["user_email"]
         }
 
         results = db.session.execute(
@@ -232,7 +233,18 @@ def search_sessions_route():
                     }
                 ).fetchone()
 
-                if not is_booked:
+                # Check if this specific 1-hour slot conflicts with their own tutoring shift
+                shift_conflict = db.session.execute(
+                    tutor_shift_conflict,
+                    {
+                        "email": session["user_email"],
+                        "week_day": str(r['week_day']),
+                        "session_start_time": session_dict['session_start_time'],
+                        "session_end_time": session_dict['session_end_time']
+                    }
+                ).fetchone()
+
+                if not is_booked and not shift_conflict:
                     sessions_list.append(session_dict)
 
                 current += timedelta(hours=1)
@@ -321,6 +333,21 @@ def session_confirm_route():
 
         if student_conflict:
             return render_template("session_confirm.html", error="Schedule Conflict: Another session booked at this date and time")
+
+        # Check if the student has a tutoring shift during this time
+        weekday = date_to_weekday(date)
+        shift_conflict = db.session.execute(
+            tutor_shift_conflict,
+            {
+                "email": session["user_email"],
+                "week_day": weekday,
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time
+            }
+        ).fetchone()
+
+        if shift_conflict:
+            return render_template("session_confirm.html", error="Schedule Conflict: You are scheduled to tutor during this time.")
 
         # Check if session already exists
         exists = db.session.execute(
