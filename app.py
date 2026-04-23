@@ -364,7 +364,7 @@ def session_cancel_route():
         if session_id:
             db.session.execute(
                 cancel_session,
-                {"session_id": session_id}
+                {"session_id": session_id, "email": session['user_email']}
             )
             db.session.commit()
 
