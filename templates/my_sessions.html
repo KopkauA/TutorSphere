@@ -67,14 +67,21 @@ Purpose:
                     <th>End Time</th>
                     <th>Tutor</th>
                     <th>Location</th>
-                    <th>Status</th>
+                    <th>
+                        <select class="status-filter" onchange="filterTable(this)" style="background: transparent; border: none; font-weight: bold; font-size: inherit; cursor: pointer;">
+                            <option value="Scheduled" selected>Scheduled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Canceled">Canceled</option>
+                            <option value="All">All</option>
+                        </select>
+                    </th>
                     <th>Cancel</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for s in my_sessions %}
-                <tr>
+                <tr data-status="{{ s.session_status }}">
                     <td><b>{{ s.course_name }}</b></td>
                     <td>{{ s.session_date }}</td>
                     <td class="time">{{ s.session_start_time }}</td>
@@ -123,13 +130,20 @@ Purpose:
                         <th>End Time</th>
                         <th>Student</th>
                         <th>Location</th>
-                        <th>Status</th>
+                        <th>
+                            <select class="status-filter" onchange="filterTable(this)" style="background: transparent; border: none; font-weight: bold; font-size: inherit; cursor: pointer;">
+                                <option value="Scheduled" selected>Scheduled</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Canceled">Canceled</option>
+                                <option value="All">All</option>
+                            </select>
+                        </th>
                         <th>Cancel</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for s in tutor_sessions %}
-                    <tr>
+                    <tr data-status="{{ s.session_status }}">
                         <td><b>{{ s.course_name }}</b></td>
                         <td>{{ s.session_date }}</td>
                         <td class="time">{{ s.session_start_time }}</td>
@@ -171,6 +185,20 @@ Purpose:
 </html>
 <script>
     
+function filterTable(selectElement) {
+    const filterValue = selectElement.value;
+    const table = selectElement.closest(".sessions-table");
+    
+    table.querySelectorAll("tbody tr").forEach(row => {
+        row.style.display = (filterValue === "All" || row.dataset.status === filterValue) ? "" : "none";
+    });
+}
+
+// Apply the default 'Scheduled' filter when the page loads
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".status-filter").forEach(select => filterTable(select));
+});
+
 function formatTime(hour, minute) {
     let period = hour >= 12 ? "PM" : "AM";
     let displayHour = hour % 12 || 12;

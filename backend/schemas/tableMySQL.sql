@@ -34,7 +34,7 @@ CREATE TABLE TutorAvailability (
   shift_start_time TIME NOT NULL,
   shift_end_time TIME NOT NULL,
   tutor_location VARCHAR(50) NOT NULL,
-  is_active SMALLINT NOT NULL DEFAULT 1,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
   
   UNIQUE (tutor_email, week_day, shift_start_time, shift_end_time),
   FOREIGN KEY (tutor_email) REFERENCES Users(email)
@@ -51,6 +51,8 @@ CREATE TABLE TutorSession (
   session_date DATE NOT NULL,
   session_status ENUM('Scheduled', 'Completed', 'Canceled') NOT NULL,
   
+  UNIQUE (availability_id, session_date, session_start_time),
+
   FOREIGN KEY (student_email) REFERENCES Users(email),
   FOREIGN KEY (course_id) REFERENCES Courses(course_id),
   FOREIGN KEY (availability_id) REFERENCES TutorAvailability(availability_id)
