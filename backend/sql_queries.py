@@ -1,5 +1,6 @@
 from sqlalchemy import text
 
+# Gets available tutoring sessions
 available_sessions_query = text("""
     SELECT 
         ta.availability_id,
@@ -27,6 +28,7 @@ available_sessions_query = text("""
     ta.shift_start_time
 """)
 
+# Get sessions student attends
 student_sessions_query = text("""
     SELECT 
         ts.session_id,
@@ -46,6 +48,7 @@ student_sessions_query = text("""
     ORDER BY ts.session_date ASC, ts.session_start_time ASC
 """)
 
+# Gets sessions tutors conduct
 tutor_sessions_query = text("""
     SELECT 
         ts.session_id,
@@ -65,18 +68,21 @@ tutor_sessions_query = text("""
     ORDER BY ts.session_date, ts.session_start_time
 """)
 
+# Gets user's information given email and password
 get_user = text("""
     SELECT *
     FROM Users
     WHERE email = :email AND password = :password
 """)
 
+# Gets course name given course id
 get_course_name = text("""
     SELECT course_name
     FROM Courses
     WHERE course_id = :course_id
 """)
 
+# Autocomplete course name
 get_courses = text("""
     SELECT course_id, course_name
     FROM Courses
@@ -85,11 +91,13 @@ get_courses = text("""
     LIMIT 10
 """)
 
+# Get user's role
 get_role = text("""
     SELECT is_tutor FROM Users 
     WHERE email = :email
 """)
 
+# Determine if a session exists
 session_exists = text("""
     SELECT 1
     FROM TutorSession
@@ -100,6 +108,7 @@ session_exists = text("""
       AND session_status != 'Canceled'
 """)
 
+# Check if student booked another session during that timeslot
 student_schedule_conflict = text("""
     SELECT 1 
     FROM TutorSession 
@@ -110,6 +119,7 @@ student_schedule_conflict = text("""
       AND session_status = 'Scheduled'
 """)
 
+# Check if a session overlaps with the tutor's shift
 tutor_shift_conflict = text("""
     SELECT 1 
     FROM TutorAvailability 
@@ -120,16 +130,19 @@ tutor_shift_conflict = text("""
       AND shift_end_time > :session_start_time
 """)
 
+# Insert user
 insert_user = text("""
     INSERT INTO Users (email, fname, lname, password, is_tutor)
     VALUES (:email, :fname, :lname, :password, :is_tutor)
 """)
 
+# Insert what tutor teaches
 insert_teaches = text("""
     INSERT INTO Teaches (tutor_email, course_id)
     VALUES (:tutor_email, :course_id)
 """)
 
+# Insert tutor's availability
 insert_availability = text("""
     INSERT INTO TutorAvailability (tutor_email, week_day, shift_start_time, shift_end_time, tutor_location, is_active)
     VALUES (:tutor_email, :week_day, :shift_start_time, :shift_end_time, :tutor_location, 1)
@@ -138,6 +151,7 @@ insert_availability = text("""
         is_active = 1
 """)
 
+# Insert session
 insert_session = text("""
     INSERT INTO TutorSession (
         student_email,
@@ -161,12 +175,14 @@ insert_session = text("""
     )
 """)
 
+# Determine if user exists
 user_exists = text("""
     SELECT 1 
     FROM Users 
     WHERE email = :email
 """)
 
+# Mark session as canceled
 cancel_session = text("""
     UPDATE TutorSession
     SET session_status = 'Canceled'
@@ -177,22 +193,26 @@ cancel_session = text("""
       ))
 """)
 
+# Mark session as complete
 complete_session = text("""
     UPDATE TutorSession
     SET session_status = 'Completed'
     WHERE session_id = :session_id
 """)
 
+# Delete teaches row from Teaches
 delete_teaches = text("""
     DELETE FROM Teaches WHERE tutor_email = :email
 """)
 
+# Change tutor's availability
 delete_availability = text("""
     UPDATE TutorAvailability
     SET is_active = 0
     WHERE tutor_email = :email
 """)
 
+# Get courses a tutor teaches
 get_tutor_courses = text("""
     SELECT c.course_id, c.course_name
     FROM Teaches t
@@ -200,6 +220,7 @@ get_tutor_courses = text("""
     WHERE t.tutor_email = :email
 """)
 
+# Get tutor's availability
 get_tutor_availability = text("""
     SELECT 
         week_day, 
