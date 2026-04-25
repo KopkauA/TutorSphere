@@ -20,6 +20,7 @@ Purpose:
 
 <body class="body">
 
+<!-- NAVBAR -->
 <nav class="navbar">
     <div class="nav-left">
         <a href="{{ url_for('dashboard_route') }}" class="logo">
@@ -102,6 +103,8 @@ Purpose:
                                 <th>Book</th>
                             </tr>
                         </thead>
+
+                        <!-- RETRIEVE AVAILABLE SESSIONS -->
                         <tbody>
                         {% for s in sessions %}
                             <tr>
@@ -134,12 +137,13 @@ Purpose:
     </div>
 </div>
 
-<!-- COURSE AUTOCOMPLETE -->
+<!-- SCRIPTS -->
 <script>
     const courseInput = document.getElementById("courseInput");
     const courseIdInput = document.getElementById("courseId");
     const suggestionsBox = document.getElementById("suggestions");
 
+    // Fetch course suggestions as user types
     courseInput.addEventListener("input", async function () {
         const q = this.value;
 
@@ -168,12 +172,14 @@ Purpose:
         suggestionsBox.innerHTML = html;
     });
 
+    // Course selection from suggestions
     function selectCourse(id, name) {
         courseInput.value = name;
         courseIdInput.value = id;
         suggestionsBox.innerHTML = "";
     }
 
+    // Close suggestions when clicking outside
     document.addEventListener("click", function(e) {
         if (!e.target.closest(".autocomplete-wrapper")) {
             suggestionsBox.innerHTML = "";
@@ -184,19 +190,19 @@ Purpose:
     courseInput.addEventListener("keydown", function() {
         courseIdInput.value = "";
     });
-</script>
 
-<script>
-function formatTime(hour, minute) {
-    let period = hour >= 12 ? "PM" : "AM";
-    let displayHour = hour % 12 || 12;
-    return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
-}
+    // Time Formatting
+    function formatTime(hour, minute) {
+        let period = hour >= 12 ? "PM" : "AM";
+        let displayHour = hour % 12 || 12;
+        return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
+    }
 
-document.querySelectorAll(".time").forEach(cell => {
-    let [hour, minute] = cell.textContent.split(":").map(Number);
-    cell.textContent = formatTime(hour, minute);
-});
+    // Format all time cells on page load
+    document.querySelectorAll(".time").forEach(cell => {
+        let [hour, minute] = cell.textContent.split(":").map(Number);
+        cell.textContent = formatTime(hour, minute);
+    });
 </script>
 
 </body>

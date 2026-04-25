@@ -1,5 +1,6 @@
 session_id,student_email,course_id,availability_id,session_location,session_start_time,session_end_time,session_date,session_status
 1,abigail.carter@usf.edu,CIS101,1,In-person (LIB206),09:00:00,10:00:00,2026-04-10,Scheduled
+63,abigail.carter@usf.edu,BIO150,10,Microsoft Teams,13:00:00,14:00:00,2026-04-29,Scheduled    
 2,alex.edwards@usf.edu,COP2510,2,Microsoft Teams,14:00:00,15:00:00,2026-04-12,Scheduled
 3,amanda.gray@usf.edu,CIS201,3,In-person (LIB206),10:00:00,11:00:00,2026-04-11,Scheduled
 4,anna.hayes@usf.edu,ENG102,5,In-person (LIB206),09:00:00,10:00:00,2026-04-15,Scheduled

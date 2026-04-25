@@ -1,5 +1,4 @@
 -- Works for MySQL
--- create_tables.sql
 DROP TABLE IF EXISTS TutorSession;
 DROP TABLE IF EXISTS TutorAvailability;
 DROP TABLE IF EXISTS Teaches;

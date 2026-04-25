@@ -19,7 +19,7 @@ available_sessions_query = text("""
       AND (:selected_weekday IS NULL OR ta.week_day = :selected_weekday)
       AND ta.tutor_email != :user_email
       AND ta.is_active = 1
-
+                                
     ORDER BY FIELD(
         ta.week_day,
         'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'

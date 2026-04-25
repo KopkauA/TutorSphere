@@ -33,7 +33,7 @@ def login_route():
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
-
+        
         with SessionLocal() as db:
             user = db.execute(
                 get_user,

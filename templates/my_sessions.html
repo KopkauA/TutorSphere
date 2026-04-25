@@ -18,6 +18,7 @@ Purpose:
 
 <body class="body">
 
+<!-- NAVBAR -->
 <nav class="navbar">
     <div class="nav-left">
         <a href="{{ url_for('dashboard_route') }}" class="logo">
@@ -51,6 +52,7 @@ Purpose:
     </div>
 </nav>
 
+<!-- MAIN -->
 <div class="content-wrapper">
     <h1 class="page-title">My Sessions</h1>
 
@@ -78,7 +80,8 @@ Purpose:
                     <th>Cancel</th>
                 </tr>
             </thead>
-
+            
+            <!-- TUTORING SESSIONS -->
             <tbody>
                 {% for s in my_sessions %}
                 <tr data-status="{{ s.session_status }}">
@@ -90,7 +93,7 @@ Purpose:
                     <td>{{ s.session_location }}</td>
                     <td>{{ s.session_status }}</td>
                     <td>                          
-                          
+                            <!-- DEFAULT STATUS SCHEDULED -->
                             {% if s.session_status == 'Scheduled' %}
 
                                 <form method="POST" action="{{ url_for('session_cancel_route') }}" class="inline-form">
@@ -117,6 +120,7 @@ Purpose:
         {% endif %}
         </div>
 
+        <!-- TUTORING SESSIONS -->
         {% if is_tutor == 1 %}
         <div class="card">
             <h2>My Tutoring Sessions</h2>
@@ -183,30 +187,35 @@ Purpose:
 </div>
 </body>
 </html>
+
+
+<!-- SCRIPTS -->
 <script>
-    
-function filterTable(selectElement) {
-    const filterValue = selectElement.value;
-    const table = selectElement.closest(".sessions-table");
-    
-    table.querySelectorAll("tbody tr").forEach(row => {
-        row.style.display = (filterValue === "All" || row.dataset.status === filterValue) ? "" : "none";
+    // Time Formatting
+    function formatTime(hour, minute) {
+        let period = hour >= 12 ? "PM" : "AM";
+        let displayHour = hour % 12 || 12;
+        return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
+    }
+
+    // Filter sessions by status
+    function filterTable(selectElement) {
+        const filterValue = selectElement.value;
+        const table = selectElement.closest(".sessions-table");
+        
+        table.querySelectorAll("tbody tr").forEach(row => {
+            row.style.display = (filterValue === "All" || row.dataset.status === filterValue) ? "" : "none";
+        });
+    }
+
+    // Apply the default 'Scheduled' filter when the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".status-filter").forEach(select => filterTable(select));
     });
-}
 
-// Apply the default 'Scheduled' filter when the page loads
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".status-filter").forEach(select => filterTable(select));
-});
-
-function formatTime(hour, minute) {
-    let period = hour >= 12 ? "PM" : "AM";
-    let displayHour = hour % 12 || 12;
-    return `${displayHour}:${String(minute).padStart(2,'0')} ${period}`;
-}
-
-document.querySelectorAll(".time").forEach(cell => {
-    let [hour, minute] = cell.textContent.split(":").map(Number);
-    cell.textContent = formatTime(hour, minute);
+    // Format all time cells on page load
+    document.querySelectorAll(".time").forEach(cell => {
+        let [hour, minute] = cell.textContent.split(":").map(Number);
+        cell.textContent = formatTime(hour, minute);
 });
 </script>
